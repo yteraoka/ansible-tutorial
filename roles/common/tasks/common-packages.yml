@@ -1,0 +1,6 @@
+- yum: name={{item}} state=installed
+  with_items:
+    - ntp
+    - bind-utils
+    - unzip
+  tags: common-packages

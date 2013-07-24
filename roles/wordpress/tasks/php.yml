@@ -1,0 +1,11 @@
+- name: be sure php is installed
+  yum: pkg=php state=installed
+  notify:
+    - restart httpd
+  tags: php
+
+- name: be sure php-mysql is installed
+  yum: pkg=php-mysql state=installed
+  notify:
+    - restart httpd
+  tags: php

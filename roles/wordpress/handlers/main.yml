@@ -1,0 +1,5 @@
+- name: restart httpd
+  service: name=httpd state=restarted
+
+- name: change wordpress files owner
+  command: chown -R apache:apache /var/www/wordpress

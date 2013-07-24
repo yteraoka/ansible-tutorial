@@ -1,0 +1,22 @@
+- name: be sure httpd is installed
+  yum: pkg=httpd state=installed
+  tags: httpd
+
+- name: create document root
+  file: dest=/var/www/wordpress state=directory owner=root group=root mode=0755
+
+- name: be sure httpd is configured
+  template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
+  notify:
+    - restart httpd
+  tags: httpd
+
+- name: remove httpd welcome.conf
+  command: /bin/rm /etc/httpd/conf.d/welcome.conf removes=/etc/httpd/conf.d/welcome.conf
+  notify:
+    - restart httpd
+  tags: httpd
+
+- name: be sure httpd is running and enabled
+  service: name=httpd state=running enabled=yes
+  tags: httpd

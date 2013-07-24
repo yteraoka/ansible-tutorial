@@ -1,0 +1,6 @@
+- name: copy wordpress zip file
+  copy: src=wordpress-${wordpress-version}.zip dest=/var/tmp/wordpress-${wordpress-version}.zip
+
+- name: unzip wordpress zip file
+  shell: /usr/bin/unzip /var/tmp/wordpress-${wordpress-version}.zip chdir=/var/www creates=/var/www/wordpress/wp-admin/index.php
+  notify: change wordpress files owner

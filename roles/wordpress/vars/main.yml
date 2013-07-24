@@ -1,0 +1,4 @@
+dbname: wordpress
+dbuser: wordpress
+dpassword: wordpress
+wordpress-version: 3.5.2-ja

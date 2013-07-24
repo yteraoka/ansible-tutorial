@@ -1,0 +1,23 @@
+- name: be sure mysql-server is installed
+  yum: pkg=mysql-server state=installed
+  tags: mysqld
+
+- name: be sure python-pip is installed
+  yum: pkg=python-pip state=installed
+  tags: mysqld
+
+- name: be sure mysqldb is installed
+  yum: pkg=MySQL-python state=installed
+  tags: mysqld
+
+- name: be sure mysqld is running and enabled
+  service: name=mysqld state=running enabled=yes
+  tags: mysqld
+
+- name: Create database
+  action: mysql_db db={{dbname}} state=present
+  tags: mysqld
+
+- name: Create database user
+  action: mysql_user name=${dbuser} password=${dbpassword} priv=${dbname}.*:ALL state=present
+  tags: mysqld
