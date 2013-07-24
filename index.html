@@ -216,40 +216,40 @@ httpd (pid  2424) is running...
 ここは長くなりそうだから詳細は別ページにしよう。<br>
 <br>
 こんなディレクトリ構成で進めます。<a href="https://github.com/yteraoka/ansible-tutorial/tree/playbook">playbook branch</a> のファイルで一応動作すると思います。随時改善していきます。
-<pre><code>$ tree
+<pre><code>$ tree -F
 .
 |-- common.yml
-|-- group_vars
-|-- host_vars
-|-- roles
-|   |-- common
-|   |   |-- files
-|   |   |-- handlers
+|-- group_vars/
+|-- host_vars/
+|-- roles/
+|   |-- common/
+|   |   |-- files/
+|   |   |-- handlers/
 |   |   |   `-- main.yml
-|   |   |-- tasks
+|   |   |-- tasks/
 |   |   |   |-- common-packages.yml
 |   |   |   |-- epel.yml
 |   |   |   |-- main.yml
 |   |   |   |-- ntp.yml
 |   |   |   `-- sshd.yml
-|   |   |-- templates
-|   |   `-- vars
-|   `-- wordpress
-|       |-- files
+|   |   |-- templates/
+|   |   `-- vars/
+|   `-- wordpress/
+|       |-- files/
 |       |   |-- welcome.conf
 |       |   `-- wordpress-3.5.2-ja.zip
-|       |-- handlers
+|       |-- handlers/
 |       |   `-- main.yml
-|       |-- tasks
+|       |-- tasks/
 |       |   |-- httpd.yml
 |       |   |-- main.yml
 |       |   |-- mysql.yml
 |       |   |-- php.yml
 |       |   |-- pip.yml
 |       |   `-- wordpress.yml
-|       |-- templates
+|       |-- templates/
 |       |   `-- httpd.conf.j2
-|       `-- vars
+|       `-- vars/
 |           `-- main.yml
 |-- site.yml
 |-- test-servers
