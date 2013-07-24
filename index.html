@@ -58,6 +58,8 @@ span.console-input {
 
 <p><a href="http://www.techfesta.jp/">July Tech Festa</a> にて開催されたハンズオンの<a href="http://tily.github.io/jtf2013/">資料が公開</a>されていたことに刺激され、Chef の代わりに Ansible を使う資料を作り<del>ました</del>始めました。
 Ansible を使って WordPress サーバーのセットアップを行います。
+<br>
+※鋭意作成中です。
 </p>
 
 <h3><a name="table-of-contents" class="anchor" href="#table-of-contents"><span class="octicon octicon-link"></span></a>目次</h3>
@@ -208,14 +210,68 @@ httpd (pid  2424) is running...
 </p>
 
 <h3>
-<a name="simple-playbook" class="anchor" href="#best-practices"><span class="octicon octicon-link"></span></a>6. Best Plactices に沿った構成を真似る</h3>
+<a name="best-practices" class="anchor" href="#best-practices"><span class="octicon octicon-link"></span></a>6. Best Plactices に沿った構成を真似る</h3>
 <p>
 <a href="http://www.ansibleworks.com/docs/bestpractices.html">Best Practices</a> のディレクトリ構成にならって WordPress サーバーを構築する Playbook を作成します。
-ここは長くなりそうだから詳細は別ページにしよう。
+ここは長くなりそうだから詳細は別ページにしよう。<br>
+<br>
+こんなディレクトリ構成で進めます。<a href="https://github.com/yteraoka/ansible-tutorial/tree/playbook">playbook branch</a> のファイルで一応動作すると思います。随時改善していきます。
+<pre><code>$ tree
+.
+|-- common.yml
+|-- group_vars
+|-- host_vars
+|-- roles
+|   |-- common
+|   |   |-- files
+|   |   |-- handlers
+|   |   |   `-- main.yml
+|   |   |-- tasks
+|   |   |   |-- common-packages.yml
+|   |   |   |-- epel.yml
+|   |   |   |-- main.yml
+|   |   |   |-- ntp.yml
+|   |   |   `-- sshd.yml
+|   |   |-- templates
+|   |   `-- vars
+|   `-- wordpress
+|       |-- files
+|       |   |-- welcome.conf
+|       |   `-- wordpress-3.5.2-ja.zip
+|       |-- handlers
+|       |   `-- main.yml
+|       |-- tasks
+|       |   |-- httpd.yml
+|       |   |-- main.yml
+|       |   |-- mysql.yml
+|       |   |-- php.yml
+|       |   |-- pip.yml
+|       |   `-- wordpress.yml
+|       |-- templates
+|       |   `-- httpd.conf.j2
+|       `-- vars
+|           `-- main.yml
+|-- site.yml
+|-- test-servers
+`-- wordpress.yml
+
+15 directories, 21 files
+</code></pre>
+
+次のように実行します。
+<pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
+</code></pre>
+
+<ul>
+  <li>各ディレクトリの意味</li>
+  <li>それぞれのファイルの説明</li>
+</ul>
+などを追記していく。
+
 </p>
 
 <h3>
-<a name="simple-playbook" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>7. serverspec でテストする</h3>
+<a name="test-with-serverspec" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>7. serverspec でテストする</h3>
 <p>
 まだ先。でもここは JTF のと同じかな？
 </p>
