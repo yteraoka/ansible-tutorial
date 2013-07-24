@@ -10,7 +10,27 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Test by yteraoka</title>
+    <title>Ansible Tutorial</title>
+    <style type="text/css">
+pre code {
+/*  font-family: monospace; */
+  font-family: courier new;
+  font-size: 9pt;
+}
+span.console-yellow {
+  color: #C4A000;
+}
+span.console-green {
+  color: #4E9A06;
+}
+span.console-blue {
+  color: #3465A4;
+}
+span.console-input {
+  font-weight: bold;
+  font-size: 10pt;
+}
+    </style>
   </head>
 
   <body>
@@ -18,55 +38,191 @@
       <div class="inner">
 
         <header>
-          <h1>Test</h1>
-          <h2></h2>
+          <h1>Ansible Tutorial</h1>
+          <h2>あんしぼー ちゅーとりある</h2>
         </header>
 
+<!--
         <section id="downloads" class="clearfix">
           <a href="https://github.com/yteraoka/test/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
           <a href="https://github.com/yteraoka/test/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
           <a href="https://github.com/yteraoka/test" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
+-->
 
         <hr>
 
         <section id="main_content">
-          <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+          <h3><a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>概要</h3>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p><a href="http://www.techfesta.jp/">July Tech Festa</a> にて開催されたハンズオンの<a href="http://tily.github.io/jtf2013/">資料が公開</a>されていたことに刺激され、Chef の代わりに Ansible を使う資料を作り<del>ました</del>始めました。
+Ansible を使って WordPress サーバーのセットアップを行います。
+</p>
+
+<h3><a name="table-of-contents" class="anchor" href="#table-of-contents"><span class="octicon octicon-link"></span></a>目次</h3>
+
+<p>
+<ol>
+  <li><a href="#server-setup-using-vagrant">Vagrant を使ってサーバーを準備する</a></li>
+  <li><a href="#install-ansible">Ansible のインストール</a></li>
+  <li><a href="#prepare-ansible">Ansible を使うための準備</a></li>
+  <li><a href="#test-ansible">Ansible の疎通確認</a></li>
+  <li><a href="#simple-playbook">簡単な Playbook を書いて試す</a></li>
+  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a></li>
+  <li><a href="#test-with-serverspec">serverspec でテストする</a></li>
+</ol>
+</p>
+
+<h3><a name="server-setup-using-vagrant" class="anchor" href="#server-setup-using-vagrant"><span class="octicon octicon-link"></span></a>1. Vagrant を使ってサーバーを準備する</h3>
+<p>
+何度でも綺麗な環境でやり直せるように VirtualBox + Vagrant を使ってこの Tutorial 用環境を構築します。
+
+<ul>
+  <li><a href="http://blog.1q77.com/2013/03/vagrant-1/">Vagrant メモ(1)</a></li>
+  <li><a href="http://blog.1q77.com/2013/03/vagrant-2/">Vagrant メモ(2)</a></li>
+</ul>
+
+あたりを参考に最新版の VirtualBox と Vagrant をインストールしてください。
+Sahara plugin なんかを使うとやり直しも簡単ですが、再構築してもそんなに時間かからないのでお好みで。
+
+<pre><code>$ <span class="console-input">mkdir ansible-tutorial</span>
+$ <span class="console-input">cd ansible-tutorial</span>
+$ <span class="console-input">vagrant init centos6 http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box</span>
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+Ansible サーバーと、Ansible に制御される側の2台のサーバーを立てることにするので <code>Vagrantfile</code> を編集します。
+
+<pre><code>$ <span class="console-input">vi Vagrantfile</span></code></pre>
+
+<code>config.vm.box = "centos6"</code> の行を次のように書き換えます。2台じゃなくて3台でも4台でもOK
+
+<pre>
+  config.vm.define :node1 do |node|
+    node.vm.box = "centos6"
+    node.vm.network :forwarded_port, guest: 22, host: 2001, id: "ssh"
+    node.vm.network :private_network, ip: "192.168.33.11"
+  end
+
+  config.vm.define :node2 do |node|
+    node.vm.box = "centos6"
+    node.vm.network :forwarded_port, guest: 22, host: 2002, id: "ssh"
+    node.vm.network :forwarded_port, guest: 80, host: 8000, id: "http"
+    node.vm.network :private_network, ip: "192.168.33.12"
+  end
+</pre>
+
+編集が終わったら起動させます。
+<pre><code>$ <span class="console-input">vagrant up</span></code></pre>
+
+起動後、Ansible で node1 から node2 へ ssh するため、Vagrant 用の秘密鍵をコピーする。
+<pre><code>$ <span class="console-input">vagrant ssh-config node1 &gt; ssh_config</span>
+$ <span class="console-input">vagrant ssh-config node2 &gt;&gt; ssh_config</span>
+$ <span class="console-input">scp -F ssh_config ~/.vagrant.d/insecure_private_key node1:.ssh/id_rsa</span>
+</code></pre>
+
+<code>vagrant ssh</code> コマンドでログインできます
+<pre><code>$ <span class="console-input">vagrant ssh node1</span>
+$ <span class="console-input">vagrant ssh node2</span>
+</code></pre>
+</p>
+
+<h3><a name="install-ansible" class="anchor" href="#install-ansible"><span class="octicon octicon-link"></span></a>2. Ansible をインストールする</h3>
+
+<p>
+node1 に Ansible をインストールします。CentOS 6 なので EPEL リポジトリから yum でインストールします。
+
+<pre><code>$ <span class="console-input">sudo rpm -ivh http://ftp-srv2.kddilabs.jp/Linux/distributions/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm</span>
+$ <span class="console-input">sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6</span>
+$ <span class="console-input">sudo yum -y install ansible</span>
+</code></pre>
+
+楽ちんですね。
+
+</p>
+
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<a name="prepare-ansible" class="anchor" href="#prepare-ansible"><span class="octicon octicon-link"></span></a>3. Ansible を使うための準備</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>
+vagrant ssh を使うと vagrant ユーザーでログインし、パスワードなしで sudo で root としてコマンドが実行可能なので、Ansible の実行も vagrant ユーザーで行う。
+</p>
 
 <h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<a name="test-ansible" class="anchor" href="#test-ansible"><span class="octicon octicon-link"></span></a>4. Ansible の疎通確認</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>
+<pre><code>$ <span class="console-input">ansible 192.168.33.12 -m ping</span>
+<span class="console-green">192.168.33.12 | success &gt;&gt; {
+    "changed": false, 
+    "ping": "pong"
+}</span></code></pre>
+
+<pre><code>$ <span class="console-input">ansible 192.168.33.12 -a 'uname -r'</span>
+<span class="console-green">192.168.33.12 | success | rc=0 &gt;&gt;
+2.6.32-358.el6.x86_64</span></code></pre>
+</p>
 
 <h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<a name="simple-playbook" class="anchor" href="#simple-playbook"><span class="octicon octicon-link"></span></a>5. 簡単な Playbook を書いて試す</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>
+
+<pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; simple-playbook.yml</span>
+- hosts: test
+  user: vagrant
+  sudo: yes
+  tasks:
+    - name: be sure httpd is installed
+      action: yum pkg=httpd state=installed
+
+    - name: be sure httpd is running and enabled
+      service: name=httpd state=running enabled=yes
+<span class="console-input">_EOD_</span>
+</code></pre>
+
+<pre><code>$ <span class="console-input">ansible-playbook simple-playbook.yml</span>
+
+PLAY [test] ******************************************************************* 
+
+GATHERING FACTS *************************************************************** 
+<span class="console-green">ok: [192.168.33.12]</span>
+
+TASK: [be sure httpd is installed] ******************************************** 
+<span class="console-yellow">changed: [192.168.33.12]</span>
+
+TASK: [be sure httpd is running and enabled] ********************************** 
+<span class="console-yellow">changed: [192.168.33.12]</span>
+
+PLAY RECAP ******************************************************************** 
+<span class="console-yellow">192.168.33.12</span>              : <span class="console-green">ok=3</span>    <span class="console-yellow">changed=2</span>    unreachable=0    failed=0
+</code></pre>
+
+node2 で確認
+<pre><code>$ <span class="console-input">sudo chkconfig --list httpd</span>
+httpd          	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+$ <span class="console-input">sudo service httpd status</span>
+httpd (pid  2424) is running...
+</code></pre>
+</p>
+
+<h3>
+<a name="simple-playbook" class="anchor" href="#best-practices"><span class="octicon octicon-link"></span></a>6. Best Plactices に沿った構成を真似る</h3>
+<p>
+<a href="http://www.ansibleworks.com/docs/bestpractices.html">Best Practices</a> のディレクトリ構成にならって WordPress サーバーを構築する Playbook を作成します。
+ここは長くなりそうだから詳細は別ページにしよう。
+</p>
+
+<h3>
+<a name="simple-playbook" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>7. serverspec でテストする</h3>
+<p>
+まだ先。でもここは JTF のと同じかな？
+</p>
         </section>
 
         <footer>
-          Test is maintained by <a href="https://github.com/yteraoka">yteraoka</a><br>
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+          Ansible Tutorial is maintained by <a href="https://github.com/yteraoka">yteraoka</a>
         </footer>
 
         
