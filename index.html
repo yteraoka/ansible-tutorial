@@ -67,9 +67,13 @@ span.console-input {
           <h3><a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>概要</h3>
 
 <p><a href="http://www.techfesta.jp/">July Tech Festa</a> にて開催されたハンズオンの<a href="http://tily.github.io/jtf2013/">資料が公開</a>されていたことに刺激され、Chef の代わりに Ansible を使う資料を作り<del>ました</del>始めました。
-Ansible を使って WordPress サーバーのセットアップを行います。
-<br>
-※鋭意作成中です。
+Ansible を使って WordPress サーバーのセットアップを行います。<br>
+まだ Ansible を試し始めたばかりで自分の勉強がてら書いています。<br>
+Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみようかと。
+</p>
+<p>
+※鋭意作成中です。<br>
+<a href="https://github.com/yteraoka/ansible-tutorial/">https://github.com/yteraoka/ansible-tutorial/</a> コメントなどお待ちしております。
 </p>
 
 <h3><a name="table-of-contents" class="anchor" href="#table-of-contents"><span class="octicon octicon-link"></span></a>目次</h3>
@@ -81,8 +85,8 @@ Ansible を使って WordPress サーバーのセットアップを行います�
   <li><a href="#prepare-ansible">Ansible を使うための準備</a></li>
   <li><a href="#test-ansible">Ansible の疎通確認</a></li>
   <li><a href="#simple-playbook">簡単な Playbook を書いて試す</a></li>
-  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a></li>
-  <li><a href="#test-with-serverspec">serverspec でテストする</a></li>
+  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a> (途中)</li>
+  <li><a href="#test-with-serverspec">serverspec でテストする</a> (まだなにも)</li>
 </ol>
 </p>
 
@@ -136,6 +140,11 @@ $ <span class="console-input">scp -F ssh_config ~/.vagrant.d/insecure_private_ke
 <code>vagrant ssh</code> コマンドでログインできます
 <pre><code>$ <span class="console-input">vagrant ssh node1</span>
 $ <span class="console-input">vagrant ssh node2</span>
+</code></pre>
+
+やり直したくなったら destroy して up すれば元の状態に戻ります
+<pre><code>$ <span class="console-input">vagrant destroy node2</span>
+$ <span class="console-input">vagrant up node2</span>
 </code></pre>
 </p>
 
