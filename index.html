@@ -205,7 +205,7 @@ ansible webservers -m ping
 <a name="simple-playbook" class="anchor" href="#simple-playbook"><span class="octicon octicon-link"></span></a>5. 簡単な Playbook を書いて試す</h3>
 
 <p>
-まずはインベントリファイルを作成する。yum でインストールした Ansible の場合、デフォルトのインベントリファイルは <code>/etc/ansible/hosts</code> となっている。これは <code>/etc/ansible/ansible.cfg</code> で定義されている。別のファイルを使う場合は <code>-i</code> オプションで指定する。
+まずは<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>を作成する。yum でインストールした Ansible の場合、デフォルトのインベントリファイルは <code>/etc/ansible/hosts</code> となっている。これは <code>/etc/ansible/ansible.cfg</code> で定義されている。別のファイルを使う場合は <code>-i</code> オプションで指定する。
 <pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; hosts</span>
 [test-servers]
 192.168.33.12
