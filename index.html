@@ -13,7 +13,6 @@
     <title>Ansible Tutorial</title>
     <style type="text/css">
 pre code {
-/*  font-family: monospace; */
   font-family: courier new;
   font-size: 9pt;
 }
@@ -29,6 +28,10 @@ span.console-blue {
 span.console-input {
   font-weight: bold;
   font-size: 10pt;
+}
+dd {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
 }
     </style>
 <script>
@@ -180,6 +183,19 @@ vagrant ssh を使うと vagrant ユーザーでログインし、パスワー�
     "ping": "pong"
 }</span></code></pre>
 
+<code>ansible-doc</code> コマンドでモジュールのドキュメントを読むことができます。
+<pre><code>$ <span class="console-input">ansible-doc ping</span>
+&gt; PING
+
+  A trivial test module, this module always returns `pong' on
+  successful contact. It does not make sense in playbooks, but it is
+  useful from `/usr/bin/ansible'
+
+Example:
+
+ansible webservers -m ping
+</code></pre>
+
 <pre><code>$ <span class="console-input">ansible 192.168.33.12 -a 'uname -r'</span>
 <span class="console-green">192.168.33.12 | success | rc=0 &gt;&gt;
 2.6.32-358.el6.x86_64</span></code></pre>
@@ -189,9 +205,14 @@ vagrant ssh を使うと vagrant ユーザーでログインし、パスワー�
 <a name="simple-playbook" class="anchor" href="#simple-playbook"><span class="octicon octicon-link"></span></a>5. 簡単な Playbook を書いて試す</h3>
 
 <p>
-
+まずはインベントリファイルを作成する。yum でインストールした Ansible の場合、デフォルトのインベントリファイルは <code>/etc/ansible/hosts</code> となっている。これは <code>/etc/ansible/ansible.cfg</code> で定義されている。別のファイルを使う場合は <code>-i</code> オプションで指定する。
+<pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; hosts</span>
+[test-servers]
+192.168.33.12
+<span class="console-input">_EOD_</span>
+</code></pre>
 <pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; simple-playbook.yml</span>
-- hosts: test
+- hosts: test-servers
   user: vagrant
   sudo: yes
   tasks:
@@ -203,9 +224,33 @@ vagrant ssh を使うと vagrant ユーザーでログインし、パスワー�
 <span class="console-input">_EOD_</span>
 </code></pre>
 
-<pre><code>$ <span class="console-input">ansible-playbook simple-playbook.yml</span>
+この playbook の内容は
+<dl>
+  <dt><code>hosts: test</code></dt>
+  <dd>対象のホストまたはグループを指定する</dd>
+  <dt><code>user: vagrant</code></dt>
+  <dd>リモートホストへ vagrant ユーザとして ssh でログインする</dd>
+  <dt><code>sudo: yes</code></dt>
+  <dd>リモートホストで sudo を使って処理を実行する</dd>
+  <dt><code>tasks:</code></dt>
+  <dd>実行する処理をリストで定義する</dd>
+</dl>
 
-PLAY [test] ******************************************************************* 
+<code>tasks</code> の内容
+<dl>
+  <dt><code>name:</code></dt>
+  <dd>処理の名称実行時に表示されます</dd>
+  <dt><code>action:</code></dt>
+  <dd>これは省略可能で <code>yum:</code> とも書ける</dd>
+  <dt><code>service:</code></dt>
+  <dd>サービスの状態を制御するモジュール</dd>
+</dl>
+
+実行結果は次の様になる。
+
+<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml</span>
+
+PLAY [test-servers] *********************************************************** 
 
 GATHERING FACTS *************************************************************** 
 <span class="console-green">ok: [192.168.33.12]</span>
@@ -225,6 +270,28 @@ node2 で確認
 httpd          	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 $ <span class="console-input">sudo service httpd status</span>
 httpd (pid  2424) is running...
+</code></pre>
+
+冪等性があるため再度実行しても対象サーバーの状態は変わらない。
+ただし、既に package がインストールされていたり、サービスの設定がされていたりするのでコマンドの出力は変わる。(changed が ok だったり skipping だったりする)
+<br>
+<br>
+2度目の実行の出力
+<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml</span>
+
+PLAY [test-servers] *********************************************************** 
+
+GATHERING FACTS *************************************************************** 
+<span class="console-green">ok: [192.168.33.12]</span>
+
+TASK: [be sure httpd is installed] ******************************************** 
+<span class="console-green">ok: [192.168.33.12]</span>
+
+TASK: [be sure httpd is running and enabled] ********************************** 
+<span class="console-green">ok: [192.168.33.12]</span>
+
+PLAY RECAP ******************************************************************** 
+<span class="console-green">192.168.33.12</span>              : <span class="console-green">ok=3</span>    changed=0    unreachable=0    failed=0
 </code></pre>
 </p>
 
