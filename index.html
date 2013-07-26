@@ -303,6 +303,9 @@ PLAY RECAP ********************************************************************
 ここは長くなりそうだから詳細は別ページにしよう。<br>
 <br>
 こんなディレクトリ構成で進めます。<a href="https://github.com/yteraoka/ansible-tutorial/tree/playbook">playbook branch</a> のファイルで一応動作すると思います。随時改善していきます。
+
+このファイルは <a href="https://github.com/yteraoka/ansible-tutorial/archive/playbook.zip">https://github.com/yteraoka/ansible-tutorial/archive/playbook.zip</a> からダウンロードできます。
+
 <pre><code>$ tree -F
 .
 |-- common.yml
@@ -354,7 +357,38 @@ PLAY RECAP ********************************************************************
   <li>それぞれのファイルの説明</li>
 </ul>
 などを追記していく。
+</p>
 
+<h3>
+<a name="best-practices-directory" class="anchor" href="#best-practices-directory"><span class="octicon octicon-link"></span></a>6.1. 各ディレクトリ、ファイルの役割・意味</h3>
+<p>
+
+数種類のサービスが Web - App - DB 構成(それぞれは Role)で構築されており、それぞれに2ヶ所のロケーションにあるとする(Multi-AZみたいな)
+
+<dl>
+  <dt>group_vars/</dt>
+  <dd>グループ毎の変数を定義するのに使います、role ではありません、role 毎の変数は roles/{role_name}/vars/ を使います。例えばロケーション毎に異なる変数など。ファイル名は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>で設定するグループ名です。インベントリファイルにグループ変数を書くことも可能です。</dd>
+  <dt>host_vars/</dt>
+  <dd>ホスト毎の変数を定義するのに使います。group_vars と同じくファイル名は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>に設定したホスト名です。インベントリファイルの中でホスト名の右に並べて書くこともできます。</dd>
+  <dt>roles/</dt>
+  <dd>このディレクトリの下に role (役割) 毎のディレクトリを作成し、それぞれの role にさらに <code>files/</code>, <code>handlers/</code>, <code>tasks/</code>, <code>templates/</code>, <code>vars/</code> というサブディレクトリを作成します。 </dd>
+  <dt>roles/*/files/</dt>
+  <dd>当該 role の task で使うファイル関連モジュール (<a href="http://www.ansibleworks.com/docs/modules.html#file">file</a>, <a href="http://www.ansibleworks.com/docs/modules.html#copy">copy</a>) が src として使うファイルの置き場所。任意のファイル名で置きます。</dd>
+  <dt>roles/*/handlers/</dt>
+  <dd>設定変更後にサービスの再起動をさせたりする場合に、notify という定義で処理を呼び出しますが、その呼び出されるハンドラをここで定義します。main.yml というファイルで作成しますが、<code>include</code> という定義で複数ファイルをそこから読み込ませることが可能です。</dd>
+  <dt>roles/*/tasks/</dt>
+  <dd>何かをインストールしたり、ユーザーを作成したりする task 定義のファイルをここに置きます。handlers と同じように mail.yml というファイルが起点となります。</dd>
+  <dt>roles/*/templates/</dt>
+  <dd><a href="http://www.ansibleworks.com/docs/modules.html#template">template</a> モジュールで利用するテンプレートファイルを置きます。このモジュールでは <a href="http://jinja.pocoo.org/docs/">Jinja2</a> (神社) というテンプレートエンジンが使われていて <code>.j2</code> とうい拡張子を使います。</dd>
+  <dt>roles/*/vars/</dt>
+  <dd>role 毎に設定する変数を定義するファイルを置きます。handlers や tasks と同じく main.yml ファイルが起点となります。</dd>
+  <dt>sites.yml</dt>
+  <dd><code>ansible-playbook</code> コマンドに渡す大元 (root) の playbook ファイルです。</dd>
+  <dt>test-servers</dt>
+  <dd>今回のインベントリファイルです。実際の運用では development, stage, production などというそれぞれの環境毎のファイルにするのが Best Practice っぽいです。</dd>
+  <dt>wordpress.yml</dt>
+  <dd>role 毎の対象グループ、対象ホストなどを定義します。今回は wordpress サーバーをセットアップする wordpress role とするため、このファイル名としてあります。site.yml で include されています。</dd>
+</dl>
 </p>
 
 <h3>
