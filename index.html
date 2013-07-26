@@ -33,6 +33,10 @@ dd {
   margin-left: 2em;
   margin-bottom: 0.5em;
 }
+li ol {
+  margin-left: 1em;
+  margin-bottom: 0;
+}
     </style>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -88,7 +92,11 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
   <li><a href="#prepare-ansible">Ansible を使うための準備</a></li>
   <li><a href="#test-ansible">Ansible の疎通確認</a></li>
   <li><a href="#simple-playbook">簡単な Playbook を書いて試す</a></li>
-  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a> (途中)</li>
+  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a> (途中)
+    <ol>
+      <li><a href="#best-practices-directory">各ディレクトリ、ファイルの役割・意味</a>
+    </ol>
+  </li>
   <li><a href="#test-with-serverspec">serverspec でテストする</a> (まだなにも)</li>
   <li><a href="ansible-in-detail.html">もっと知る</a></li>
 </ol>
@@ -351,13 +359,6 @@ PLAY RECAP ********************************************************************
 次のように実行します。
 <pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
 </code></pre>
-
-<ul>
-  <li>各ディレクトリの意味</li>
-  <li>それぞれのファイルの説明</li>
-</ul>
-などを追記していく。
-</p>
 
 <h3>
 <a name="best-practices-directory" class="anchor" href="#best-practices-directory"><span class="octicon octicon-link"></span></a>6.1. 各ディレクトリ、ファイルの役割・意味</h3>
