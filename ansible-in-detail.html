@@ -76,6 +76,7 @@ li ul {
     </ul>
   </li>
   <li><a href="#ssh-config">SSHまわりの設定</a></li>
+  <li><a href="#ansible-playbook">ansible-playbook コマンド</a></li>
 <!--
   <li><a href="#"></a></li>
 -->
@@ -139,7 +140,7 @@ server2 listen_port=81 relay_server=relay2</pre></code>
   <dt>ansible_ssh_pass</dt>
   <dd>SSHでパスワード認証する際のパスワードを指定</dd>
   <dt>ansible_connection</dt>
-  <dd>対象サーバーへの接続方法 (local, ssh, paramiko)、Ansible 1.2 より前は paramiko がデフォルトだった</dd>
+  <dd>対象サーバーへの接続方法 (local, ssh, paramiko)、デフォルトは paramiko</dd>
   <dt>ansible_ssh_private_key_file</dt>
   <dd>SSHの秘密鍵が他と違う場合に指定</dd>
   <dt>ansible_syslog_facility</dt>
@@ -154,8 +155,7 @@ server2 listen_port=81 relay_server=relay2</pre></code>
 
 <h3><a name="ssh-config" class="anchor" href="#ssh-config"><span class="octicon octicon-link"></span></a>SSHまわりの設定</h3>
 <p>
-Ansible は version 1.2 からサーバーへの接続はデフォルトで SSH を使うようになっている。
-ただし、~/.ssh/config を読んではくれないため、標準の path の秘密鍵以外を使いたい場合や 22 番以外のポートを使いたい場合はインベントリファイルにホスト毎、グループ毎、全体の変数を設定する。
+Ansible はデフォルトでは SSH 接続に Python の paramiko を使う(RHEL 6 の OpenSSH は古くて ControlPersist 機能がないため?)、このためか ~/.ssh/config を読んではくれない。標準の path の秘密鍵以外を使いたい場合や 22 番以外のポートを使いたい場合はインベントリファイルにホスト毎、グループ毎、全体の変数を設定する。
 <br>
 <pre><code>[group-a]
 server1 ansible_ssh_port=2222
@@ -175,6 +175,61 @@ ansible_ssh_port=1234
 秘密鍵だけはコマンドラインオプションで指定できる
 <pre><code>$ <span class="console-input">ansible --private-key=/path/to/key_file</span></code></pre>
 変数の強度は「host &gt; group &gt; all &gt; コマンドラインオプション」の順。
+</p>
+
+<h3><a name="ansible-playbook" class="anchor" href="#ansible-playbook"><span class="octicon octicon-link"></span></a>ansible-playbook コマンド</h3>
+<p>
+オプション
+<dl>
+  <dt><code>-k, --ask-pass</code></dt>
+  <dd>SSH のパスワードを尋ねる(プロンプトが出る)</dd>
+  <dt><code>-K, --ask-sudo-pass</code></dt>
+  <dd>sudo のパスワードを尋ねる(プロンプトが出る)</dd>
+  <dt><code>-C, --check</code></dt>
+  <dd>インストールなどの変更は行わないが、条件の確認などは実行する</dd>
+  <dt><code>-c CONNECTION, --connection=CONNECTION</code></dt>
+  <dd>local, ssh, paramiko から選択。デフォルトは paramiko。古い OpenSSH で ssh を指定する場合は <code>ANSIBLE_SSH_ARGS=""</code> と環境変数を空で上書きする必要がある</dd>
+  <dt><code>-D, --diff</code></dt>
+  <dd>file や template の差分(diff)を表示する。<code>--check</code> と一緒に使うと便利</dd>
+  <dt><code>-e EXTRA_VARS, --extra-vars=EXTRA_VARS</code></dt>
+  <dd>追加の変数を key=value で指定する。playbook に書かれている変数の上書きはされない</dd>
+  <dt><code>-f FORKS, --forks=FORKS</code></dt>
+  <dd>並列実行する数(デフォルトは5)</dd>
+  <dt><code>-h, --help</code></dt>
+  <dd>このヘルプメッセージを表示して終了する</dd>
+  <dt><code>-i INVENTORY, --inventory-file=INVENTORY</code></dt>
+  <dd>インベントリファイルを指定する(デフォルトは /etc/ansible/hosts)</dd>
+  <dt><code>-l SUBNET, --limit=SUBNET</code></dt>
+  <dd>対象サーバーを指定のものだけに制限する</dd>
+  <dt><code>--list-hosts</code></dt>
+  <dd>それぞれの playbook の対象ホスト一覧を表示して終了する。playbook の実行はされない</dd>
+  <dt><code>--list-tasks</code></dt>
+  <dd>各 playbook のタスク一覧を表示して終了する</dd>
+  <dt><code>-M MODULE_PATH, --module-path=MODULE_PATH</code></dt>
+  <dd>モジュールファイルのディレクトリを指定する(デフォルトは /usr/share/ansible)</dd>
+  <dt><code>--private-key=PRIVATE_KEY_FILE</code></dt>
+  <dd>SSH の秘密鍵ファイルを指定する</dd>
+  <dt><code>--start-at-task=START_AT</code></dt>
+  <dd>指定の task から開始する</dd>
+  <dt><code>--step</code></dt>
+  <dd>ひとつの task ごとに "Perform task: タスク名 (y/n/c):" と確認される。y: (yes) 実行する、n: (no) 実行しない、c: (continue) 以降を確認なしで実行する</dd>
+  <dt><code>-s, --sudo</code></dt>
+  <dd>対象サーバーでの task を sudo で実行する</dd>
+  <dt><code>-U SUDO_USER, --sudo-user=SUDO_USER</code></dt>
+  <dd>sudo での実行ユーザーを指定する(デフォルトは root)</dd>
+  <dt><code>--syntax-check</code></dt>
+  <dd>playbook の文法チェックだけを行う</dd>
+  <dt><code>-t TAGS, --tags=TAGS</code></dt>
+  <dd>指定の tag が付けられた task のみを実行する</dd>
+  <dt><code>-T TIMEOUT, --timeout=TIMEOUT</code></dt>
+  <dd>SSH のタイムアウトを指定する(デフォルトは10秒)</dd>
+  <dt><code>-u REMOTE_USER, --user=REMOTE_USER</code></dt>
+  <dd>SSH で接続するユーザー名を指定する</dd>
+  <dt><code>-v, --verbose</code></dt>
+  <dd>冗長モード (-vvv でより冗長な出力になる)</dd>
+  <dt><code>--version</code></dt>
+  <dd>バージョンを表示して終了する</dd>
+</dl>
 </p>
 
 <!--

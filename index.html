@@ -356,6 +356,37 @@ PLAY RECAP ********************************************************************
 15 directories, 21 files
 </code></pre>
 
+タスクの一覧を確認するには次のように <code>--list-tasks</code> オプションをつけて <code>ansible-playboook</code> コマンドを実行します。
+<pre><code>$ <span class="console-input">ansible-playbook --list-tasks site.yml</span>
+
+playbook: site.yml
+
+  play #1 (all): task count=7
+    be sure epel repository is installed
+    yum name={{item}} state=installed
+    disable password authentication
+    be sure ntpd is running and enabled
+
+  play #2 (wordpress): task count=18
+    be sure httpd is installed
+    create document root
+    be sure httpd is configured
+    remove httpd welcome.conf
+    be sure httpd is running and enabled
+    be sure mysql-server is installed
+    be sure python-pip is installed
+    be sure mysqldb is installed
+    be sure mysqld is running and enabled
+    Create database
+    Create database user
+    be sure php is installed
+    be sure php-mysql is installed
+    copy wordpress zip file
+    unzip wordpress zip file
+
+</code></pre>
+
+
 次のように実行します。
 <pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
 </code></pre>
