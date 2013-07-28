@@ -39,6 +39,25 @@ span.doc-link {
 li ul {
   margin-bottom: 0;
 }
+table.module-option {
+  border-collapse: collapse;
+}
+table.module-option th {
+  font-weight: bold;
+  text-align: center;
+}
+table.module-option th,
+table.module-option td
+{
+  border: 1px solid gray;
+  padding: 2px;
+  font-size: 10pt;
+  background-color: #f8f8f8;
+  vertical-align: middle;
+}
+table.module-option td.comments {
+  text-align: left;
+}
     </style>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -77,6 +96,13 @@ li ul {
   </li>
   <li><a href="#ssh-config">SSHまわりの設定</a></li>
   <li><a href="#ansible-playbook">ansible-playbook コマンド</a></li>
+  <li><a href="#modules">モジュール</a>
+    <ul>
+      <li><a href="#module-file">file</a></li>
+      <li><a href="#module-copy">copy</a></li>
+      <li><a href="#module-fetch">fetch</a></li>
+    </ul>
+  </li>
 <!--
   <li><a href="#"></a></li>
 -->
@@ -156,6 +182,8 @@ server2 listen_port=81 relay_server=relay2</pre></code>
 <h3><a name="ssh-config" class="anchor" href="#ssh-config"><span class="octicon octicon-link"></span></a>SSHまわりの設定</h3>
 <p>
 Ansible はデフォルトでは SSH 接続に Python の paramiko を使う(RHEL 6 の OpenSSH は古くて ControlPersist 機能がないため?)、このためか ~/.ssh/config を読んではくれない。標準の path の秘密鍵以外を使いたい場合や 22 番以外のポートを使いたい場合はインベントリファイルにホスト毎、グループ毎、全体の変数を設定する。
+
+Version 1.2.1 からは OpenSSH が <code>ControlPersist</code> をサポートしている場合は <code>ssh</code> で、そうでない場合は <code>paramiko</code> となる <code>smart</code> がデフォルトとなるようです。
 <br>
 <pre><code>[group-a]
 server1 ansible_ssh_port=2222
@@ -230,6 +258,247 @@ ansible_ssh_port=1234
   <dt><code>--version</code></dt>
   <dd>バージョンを表示して終了する</dd>
 </dl>
+</p>
+
+
+<h3><a name="modules" class="anchor" href="#modules"><span class="octicon octicon-link"></span></a>モジュール</h3>
+<p>
+Ansible の Playbook を書くにはどんな module があるのかを知り、用途にあったものを使うようにする必要があります。
+</p>
+
+<h4><a name="module-file" class="anchor" href="#module-file"><span class="octicon octicon-link"></span></a>file</h4>
+<p>
+ファイル、シンボリックリンク、ディレクトリの所有者やモードの設定、削除削除を行うモジュールです。
+他の多くのモジュールが同じオプションをサポートしています copy, template, assemble など。
+<br>
+例
+<pre><code>- file: path=/etc/foo.conf owner=foo group=foo mode=0644
+- file: src=/file/to/link/to dest=/path/to/symlink owner=foo group=foo state=link
+</code></pre>
+
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>required</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>force</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">yes にすると2つのケースでシンボリックリンクを強制的に作成します。1) リンク元ファイルが存在しない場合 2) リンク先にファイルが存在する場合(unlink 後にリンクを作成します)</td>
+</tr>
+<tr>
+  <td>group</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">グループ (chown で使うもの)</td>
+</tr>
+<tr>
+  <td>mode</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">モード (chmod で使うもの)</td>
+</tr>
+<tr>
+  <td>owner</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">ファイルの所有者 (chown で使うもの)</td>
+</tr>
+<tr>
+  <td>path</td>
+  <td>yes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">ファイルやディレクトリのpath、<code>state=link</code> の場合は <code>src</code> に対するリンク先を指定します。</td>
+</tr>
+<tr>
+  <td>recurse</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">state=directory の場合に attribute 設定を再帰的に行うかどうか</td>
+</tr>
+<tr>
+  <td>selevel</td>
+  <td>no</td>
+  <td>s0</td>
+  <td></td>
+  <td class="comments">level part of the SELinux file context. This is the MLS/MCS attribute, sometimes known as the <code>range</code>. <code>_default</code> feature works as for seuser.</td>
+</tr>
+<tr>
+  <td>serole</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">role part of SELinux file context, <code>_default</code> feature works as for seuser.</td>
+</tr>
+<tr>
+  <td>setype</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">type part of SELinux file context, <code>_default</code> feature works as for seuser.</td>
+</tr>
+<tr>
+  <td>seuser</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">user part of SELinux file context. Will default to system policy, if applicable. If set to <code>_default</code>, it will use the <code>user</code> portion of the policy if available.</td>
+</tr>
+<tr>
+  <td>src</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">シンボリックリンクのリンク元path</td>
+</tr>
+<tr>
+  <td>state</td>
+  <td>no</td>
+  <td>file</td>
+  <td>file<br>link<br>directory<br>hard<br>absent</td>
+  <td class="comments"><code>directory</code> の場合、<code>mkdir -p</code> のように途中の directory も作成します。<code>absent</code> の場合、directory は再帰的に削除され、ファイルやリンクは unlink されます。</td>
+</tr>
+</table>
+</p>
+
+<h4><a name="module-copy" class="anchor" href="#module-copy"><span class="octicon octicon-link"></span></a>copy</h4>
+<p>
+Ansible 実行サーバーからリモートサーバーにファイルをコピーするモジュールです。<br>
+このモジュールはディレクトリを再帰的にコピーすることができません。<br>
+(rsync コマンドを使う例が <a href="http://www.ansibleworks.com/docs/playbooks2.html/#delegation">delegation</a> にあります)
+<pre><code># Playbook からの例
+- copy: src=/srv/myfiles/foo.conf dest=/etc/foo.conf owner=foo group=foo mode=0644
+
+# ntp.conf をコピーします。既に存在するファイルと差分がある場合は元のファイルをバックアップします
+- copy: src=/mine/ntp.conf dest=/etc/ntp.conf owner=root group=root mode=644 backup=yes
+
+# sudoers ファイルを dest の path にコピーする前に visudo コマンドでバリデーションを実行します
+- copy: src=/mine/sudoers dest=/etc/sudoers validate='visudo -cf %s'
+</code></pre>
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>required</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>backup</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">既存ファイルと内容に差があった場合にバックアップ日時をファイル名に含むバックアップファイルを作成します。</td>
+</tr>
+<tr>
+  <td>content</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments"><code>src</code> の代わりに使用することで、ここに設定したデータがファイルの内容となります。</td>
+</tr>
+<tr>
+  <td>dest</td>
+  <td>yes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">コピー先の path</td>
+</tr>
+<tr>
+  <td>force</td>
+  <td>no</td>
+  <td>yes</td>
+  <td>yes<br>no</td>
+  <td class="comments">デフォルトは yes で、ファイルの内容に差があればコピーします。no の場合はファイルが存在すると上書きしません</td>
+</tr>
+<tr>
+  <td>src</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">コピーするファイルのpath。絶対pathでも相対pathでも可</td>
+</tr>
+<tr>
+  <td>validate</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">コピーする前に validation するコマンドを指定</td>
+</tr>
+<tr>
+  <td>その他</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">file モジュールで指定可能なものすべてが使えます</td>
+</tr>
+</table>
+</p>
+
+<h4><a name="module-fetch" class="anchor" href="#module-fetch"><span class="octicon octicon-link"></span></a>fetch</h4>
+<p>
+<a href="#module-copy">copy</a> モジュールと似た動作をしますが、これは push ではなく pull となります。コピー元が存在しない場合をエラーとするには <code>fail_on_missing</code> を <code>yes</code> にする必要があります。
+管理対象サーバーからファイルを収集したい場合に利用します。
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>required</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>dest</td>
+  <td>yes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">ファイルの保存先を指定します。対象ホストが <code>host.example.com</code> で <code>dest</code> が <code>/backup</code> で、<code>src</code> が <code>/etc/profile</code> の場合、<code>/backup/host.example.com/etc/profile</code> に保存されます。</td>
+</tr>
+<tr>
+  <td>fail_on_missing</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">コピー元ファイルが存在しかなった場合を失敗として扱います。</td>
+</tr>
+<tr>
+  <td>flat</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments"><code>hostname/path/to/file</code> というデフォルトの保存先の上書きを許可します。<code>dest</code> が '/' で終わる場合は basename をファイル名としてそのディレクトリに保存します。</td>
+</tr>
+<tr>
+  <td>src</td>
+  <td>yes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">fetch するファイルの対象ホスト上の path を指定します。ディレクトリには対応していません。再帰的なコピーは今後のリリースで対応予定です。</td>
+</tr>
+</table>
+例
+<pre><code># Store file into /tmp/fetched/host.example.com/tmp/somefile
+- fetch: src=/tmp/somefile dest=/tmp/fetched
+
+# Specifying a path directly
+- fetch: src=/tmp/somefile dest=/tmp/prefix-{{ ansible_hostname }} flat=yes
+
+# Specifying a destination path
+- fetch: src=/tmp/uniquefile dest=/tmp/special/ flat=yes
+
+# Storing in a path relative to the playbook
+- fetch: src=/tmp/uniquefile dest=special/prefix-{{ ansible_hostname }} flat=yes
+</code></pre>
 </p>
 
 <!--
