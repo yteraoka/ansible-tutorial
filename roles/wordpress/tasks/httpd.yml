@@ -3,7 +3,8 @@
   tags: httpd
 
 - name: create document root
-  file: dest=/var/www/wordpress state=directory owner=root group=root mode=0755
+  file: path=/var/www/wordpress state=directory owner=root group=root mode=0755
+  tags: httpd
 
 - name: be sure httpd is configured
   template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
@@ -12,7 +13,7 @@
   tags: httpd
 
 - name: remove httpd welcome.conf
-  command: /bin/rm /etc/httpd/conf.d/welcome.conf removes=/etc/httpd/conf.d/welcome.conf
+  file: path=/etc/httpd/conf.d/welcome.conf state=absent
   notify:
     - restart httpd
   tags: httpd
