@@ -98,9 +98,10 @@ table.module-option td.comments {
   <li><a href="#ansible-playbook">ansible-playbook コマンド</a></li>
   <li><a href="#modules">モジュール</a>
     <ul>
-      <li><a href="#module-file">file</a></li>
-      <li><a href="#module-copy">copy</a></li>
-      <li><a href="#module-fetch">fetch</a></li>
+      <li><a href="#module-file">file</a> (ファイル・ディレクトリ操作)</li>
+      <li><a href="#module-copy">copy</a> (ファイルを配る)</li>
+      <li><a href="#module-fetch">fetch</a> (ファイルを収集する)</li>
+      <li><a href="#module-user">user</a> (ユーザーアカウントの管理)</li>
     </ul>
   </li>
 <!--
@@ -499,6 +500,197 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 # Storing in a path relative to the playbook
 - fetch: src=/tmp/uniquefile dest=special/prefix-{{ ansible_hostname }} flat=yes
 </code></pre>
+</p>
+
+
+<h4><a name="module-user" class="anchor" href="#module-user"><span class="octicon octicon-link"></span></a>user</h4>
+<p>
+ユーザーアカウントの管理をするモジュールです。
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>required</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>append</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments"><code>yes</code> の場合、<code>groups</code> への追加だけを行う</td>
+</tr>
+<tr>
+  <td>comment</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">アカウントのコメント (GECOS) を指定しる</td>
+</tr>
+<tr>
+  <td>createhome</td>
+  <td>no</td>
+  <td>yes</td>
+  <td>yes<br>no</td>
+  <td class="comments"><code>no</code> にしない場合はアカウント作成後にホームディレクトリを作成する</td>
+</tr>
+<tr>
+  <td>force</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments"><code>state=absent</code> の場合、<code>userdel --force</code> として処理される</td>
+</tr>
+<tr>
+  <td>generate_ssh_key</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">SSH key を作成するかどうか。既に存在する場合には上書きしません。</td>
+</tr>
+<tr>
+  <td>group</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">ユーザーのプライマリグループをグループ名で指定する</td>
+</tr>
+<tr>
+  <td>groups</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">カンマ区切りのグループリストにユーザーを追加する。<code>groups=</code> と、空文字列をしていするとプライマリグループ以外から削除します。</td>
+</tr>
+<tr>
+  <td>home</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">ホームディレクトリの path を指定する</td>
+</tr>
+<tr>
+  <td>login_class</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">FreeBSD, OpenBSD, NetBSD 用の login class を指定する</td>
+</tr>
+<tr>
+  <td>name</td>
+  <td>yes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">操作対象のユーザー名を指定</td>
+</tr>
+<tr>
+  <td>non_unique</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">ユニークでない uid を許可するかどうか</td>
+</tr>
+<tr>
+  <td>password</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">ハッシュ化された文字列を指定することでパスワードを設定する</td>
+</tr>
+<tr>
+  <td>remove</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments"><code>state=absent</code> と同時に指定することで <code>userdel --remote</code> となり、ホームディレクトリも削除される</td>
+</tr>
+<tr>
+  <td>shell</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">ログインシェルを指定する</td>
+</tr>
+<tr>
+  <td>ssh_key_bits</td>
+  <td>no</td>
+  <td>2048</td>
+  <td></td>
+  <td class="comments">作成する SSH key の bit 数を指定する</td>
+</tr>
+<tr>
+  <td>ssh_key_comment</td>
+  <td>no</td>
+  <td>ansible-generated</td>
+  <td></td>
+  <td class="comments">SSH key のコメントを指定する</td>
+</tr>
+<tr>
+  <td>ssh_key_file</td>
+  <td>no</td>
+  <td>$HOME/.ssh/id_rsa</td>
+  <td></td>
+  <td class="comments">SSH key ファイルの path を指定する</td>
+</tr>
+<tr>
+  <td>ssh_key_passphrase</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">作成する SSH key ファイルのパスフレーズ、指定しない場合はパスフレーズなしの key が作成される</td>
+</tr>
+<tr>
+  <td>ssh_key_type</td>
+  <td>no</td>
+  <td>rsa</td>
+  <td></td>
+  <td class="comments">SSH key の暗号アルゴリズムを指定する、利用可能なものはそのホストの環境に依存する</td>
+</tr>
+<tr>
+  <td>state</td>
+  <td>no</td>
+  <td>present</td>
+  <td>present<br>absent</td>
+  <td class="comments"><code>absent</code> でユーザーを削除する</td>
+</tr>
+<tr>
+  <td>system</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">システムアカウントとして作成する。既存のアカウントの設定を変更することはできない</td>
+</tr>
+<tr>
+  <td>uid</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">uid を指定する</td>
+</tr>
+<tr>
+  <td>update_password</td>
+  <td>no</td>
+  <td>always</td>
+  <td>always<br>on_create</td>
+  <td class="comments">パスワードをいつでも変更可能 (<code>always</code>) にするか、作成時 (<code>on_create</code>) のみにするか</td>
+</tr>
+</table>
+
+<code>useradd</code>, <code>userdel</code>, <code>usermod</code> コマンドが必要。
+
+<pre><code># 'johnd' ユーザーを指定の uid で、プライマリグループ admin で作成する
+- user: name=johnd comment="John Doe" uid=1040 group=admin
+
+# 'johnd' ユーザーを削除する、ホームディレクトリも削除する
+- user: name=johnd state=absent remove=yes
+
+# jsmith の 2048-bit SSH key を作成する
+- user: name=jsmith generate_ssh_key=yes ssh_key_bits=2048
+</code></pre>
+
+パスワードなどは prompt を表示させて入力を変数にいれることでセキュリティを保つことができる。ハッシュ化には <a href="http://pythonhosted.org/passlib/">Passlib</a> モジュールが必要となる。CentOS 6 では <code>yum -y install python-passlib</code> で EPEL リポジトリがインストールできる。
+
 </p>
 
 <!--
