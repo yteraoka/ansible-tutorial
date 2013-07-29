@@ -17,13 +17,16 @@ pre code {
   font-size: 9pt;
 }
 span.console-yellow {
-  color: #C4A000;
+  color: #FCE94F;
 }
 span.console-green {
-  color: #4E9A06;
+  color: #8AE234;
 }
 span.console-blue {
   color: #3465A4;
+}
+span.console-red {
+  color: #EF2929;
 }
 span.console-input {
   font-weight: bold;
@@ -255,7 +258,48 @@ ansible webservers -m ping
   <dd>サービスの状態を制御するモジュール</dd>
 </dl>
 
-実行結果は次の様になる。
+playbook の syntax チェックを行なってみます。<code>--syntax-check</code> オプションを使います。
+<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --syntax-check</span>
+Playbook Syntax is fine
+</code></pre>
+
+次に task の一覧を確認してみましょう。<code>--list-tasks</code> オプションを使います。(<a href="ansible-in-detail.html#ansible-playbook">その他のオプション一覧はこちら</a>)。
+<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --list-tasks</span>
+
+playbook: simple-playbook.yml
+
+  play #1 (test-servers): task count=5
+    be sure httpd is installed
+    be sure httpd is running and enabled
+
+</code></pre>
+
+次は dry-run です、<code>--check</code> オプションを指定することで変更は行わないが、実際に実行するとこうなるという出力がされます。
+<pre><code>$ ansible-playbook -i hosts simple-playbook.yml --check
+
+PLAY [test-servers] *********************************************************** 
+
+GATHERING FACTS *************************************************************** 
+<span class="console-green">ok: [192.168.33.12]</span>
+
+TASK: [be sure httpd is installed] ******************************************** 
+<span class="console-yellow">changed: [192.168.33.12]</span>
+
+TASK: [be sure httpd is running and enabled] ********************************** 
+<span class="console-red">failed: [192.168.33.12] =&gt; {"failed": true}
+msg: cannot find 'service' binary or init script for service,  possible typo in service name?, aborting
+
+FATAL: all hosts have already failed -- aborting</span>
+
+PLAY RECAP ******************************************************************** 
+           to retry, use: --limit @/var/tmp/ansible/simple-playbook.retry
+
+<span class="console-red">192.168.33.12</span>              : <span class="console-green">ok=2</span>    <span class="console-yellow">changed=1</span>    unreachable=0    <span class="console-red">failed=1</span>
+
+</code></pre>
+あららら？なんか failed って出てますね。まぁ、順番に見てみましょう。一つ目のインストールする task は changed となっています。これは、まだ httpd がインストールされていないので、実際に実行するとインストールされて changed となるということを意味しています。次の自動起動と起動している状態にする task は失敗してしまっています。これはまだ httpd がインストールされていないために、<code>chkconfig httpd</code> などに失敗するからです。<br>
+<br>
+ではいよいよ実行してみましょう。
 
 <pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml</span>
 
@@ -273,7 +317,8 @@ TASK: [be sure httpd is running and enabled] **********************************
 PLAY RECAP ******************************************************************** 
 <span class="console-yellow">192.168.33.12</span>              : <span class="console-green">ok=3</span>    <span class="console-yellow">changed=2</span>    unreachable=0    failed=0
 </code></pre>
-
+うまくいきましたね。<br>
+<br>
 node2 で確認
 <pre><code>$ <span class="console-input">sudo chkconfig --list httpd</span>
 httpd          	0:off	1:off	2:on	3:on	4:on	5:on	6:off
