@@ -2,10 +2,6 @@
   yum: pkg=mysql-server state=installed
   tags: mysqld
 
-- name: be sure python-pip is installed
-  yum: pkg=python-pip state=installed
-  tags: mysqld
-
 - name: be sure mysqldb is installed
   yum: pkg=MySQL-python state=installed
   tags: mysqld
