@@ -99,6 +99,7 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
     <ol>
       <li><a href="#best-practices-directory">各ディレクトリ、ファイルの役割・意味</a>
       <li><a href="#list-variable">リスト型変数を使った処理</a>
+      <li><a href="#mysql">MySQL 関連</a>
     </ol>
   </li>
   <li><a href="#test-with-serverspec">serverspec でテストする</a> (まだなにも)</li>
@@ -388,7 +389,6 @@ PLAY RECAP ********************************************************************
 |       |   |-- main.yml
 |       |   |-- mysql.yml
 |       |   |-- php.yml
-|       |   |-- pip.yml
 |       |   `-- wordpress.yml
 |       |-- templates/
 |       |   `-- httpd.conf.j2
@@ -397,8 +397,6 @@ PLAY RECAP ********************************************************************
 |-- site.yml
 |-- test-servers
 `-- wordpress.yml
-
-15 directories, 21 files
 </code></pre>
 
 タスクの一覧を確認するには次のように <code>--list-tasks</code> オプションをつけて <code>ansible-playboook</code> コマンドを実行します。
@@ -481,6 +479,47 @@ playbook: site.yml
 </code></pre>
 <code>with_items</code> にインストールされているべきパッケージ名を並べ、それぞれを <a href="ansible-in-detail.html#module-yum">yum モジュール</a>で処理します。
 <code>tags</code> を指定しておくと ansible-playbook の <code>--tags</code> オプションを使うことで指定の tag のついた task だけを実行可能。複数の task に同じ tag を付けられます。
+</p>
+
+<h3>
+<a name="mysql" class="anchor" href="#mysql"><span class="octicon octicon-link"></span></a>6.3. MySQL 関連</h3>
+<p>
+<pre><code># yum で mysql-server パッケージをインストール
+- name: be sure mysql-server is installed
+  yum: pkg=mysql-server state=installed
+  tags: mysqld
+
+# mysql_user で必要な python モジュールをインストールする
+- name: be sure mysqldb is installed
+  yum: pkg=MySQL-python state=installed
+  tags: mysqld
+
+# mysqld の起動、自動起動設定
+- name: be sure mysqld is running and enabled
+  service: name=mysqld state=running enabled=yes
+  tags: mysqld
+
+# wordpress 用 DB の作成
+- name: Create database
+  action: mysql_db db={{dbname}} state=present
+  tags: mysqld
+
+# wordpress 用 DB ユーザーの作成
+- name: Create database user
+  action: mysql_user name=${dbuser} password=${dbpassword} priv=${dbname}.*:ALL state=present
+  tags: mysqld
+</code></pre>
+
+<code>dbname</code>, <code>dbuser</code> 変数は <code>roles/wordpress/vars/main.yml</code> に書いてあり、<code>dbpassword</code> は <code>wordpress.yml</code> にて次のように <code>vas_prompt</code> 設定し、ansible-playbook 実行時に入力させている。
+<code><pre>- hosts: wordpress
+  sudo: yes
+  roles:
+    - wordpress
+  vars_prompt:
+    - name: "dbpassword"
+      prompt: "Please enter MySQL wordpress user password"
+      default: "wordpress"
+</code></pre>
 </p>
 
 <h3>
