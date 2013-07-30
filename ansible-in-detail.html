@@ -698,9 +698,82 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 </p>
 
 
+<h4><a name="module-yum" class="anchor" href="#module-yum"><span class="octicon octicon-link"></span></a>yum</h4>
+<p>
+yum を使ってパッケージのインストール、更新、削除、リストを行うモジュールです。
+
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>required</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>conf_file</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">対象ホストで /etc/yum.conf 以外を使う場合に指定</td>
+</tr>
+<tr>
+  <td>disable_gpg_check</td>
+  <td>no</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">パッケージのシグネチャチェックを無効にする</td>
+</tr>
+<tr>
+  <td>disablerepo</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">実行時に無効にしたいリポジトリを指定する。カンマ区切りで複数指定可能</td>
+</tr>
+<tr>
+  <td>enablerepo</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">デフォルトで無効にしているが実行時に有効にしたいリポジトリを指定する。カンマ区切りで複数指定可能</td>
+</tr>
+<tr>
+  <td>list</td>
+  <td>no</td>
+  <td></td>
+  <td></td>
+  <td class="comments">ansible-playbook ではなく ansible コマンド用。冪等でない。例を見よと書いてあるが例に載ってない...</td>
+</tr>
+<tr>
+  <td>name</td>
+  <td>yes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">パッケージ名 <code>state=latest</code> で <code>name=*</code> の場合は <code>yum -y update</code> を意味する </td>
+</tr>
+<tr>
+  <td>state</td>
+  <td>no</td>
+  <td>present</td>
+  <td>present<br>latest<br>absent</td>
+  <td class="comments"><code>present</code> はインストールされていること、最新は求めない。<code>lastest</code> は最新に更新する。<code>absent</code> はインストールされていない状態にする</td>
+</tr>
+</table>
+<br>
+例
+<pre><code>- yum: name=httpd state=latest
+- yum: name=httpd state=absent
+- yum: name=httpd enablerepo=testing state=installed
+# yum -y update
+- yum: name=* state=latest
+</code></pre>
+</p>
+
+
 <h3><a name="advanced-playbook" class="anchor" href="#advanced-playbook"><span class="octicon octicon-link"></span></a>Advanced Playbook</h3>
 <p>
-これ必見<br>
+これ必見!!
 <a href="http://www.ansibleworks.com/docs/playbooks2.html/">高度な Playbook の書き方</a>
 </p>
 
