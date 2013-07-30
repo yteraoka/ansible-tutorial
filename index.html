@@ -98,6 +98,7 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
   <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a> (途中)
     <ol>
       <li><a href="#best-practices-directory">各ディレクトリ、ファイルの役割・意味</a>
+      <li><a href="#list-variable">リスト型変数を使った処理</a>
     </ol>
   </li>
   <li><a href="#test-with-serverspec">serverspec でテストする</a> (まだなにも)</li>
@@ -465,6 +466,21 @@ playbook: site.yml
   <dt>wordpress.yml</dt>
   <dd>role 毎の対象グループ、対象ホストなどを定義します。今回は wordpress サーバーをセットアップする wordpress role とするため、このファイル名としてあります。site.yml で include されています。</dd>
 </dl>
+</p>
+
+<h3>
+<a name="list-variable" class="anchor" href="#list-variable"><span class="octicon octicon-link"></span></a>6.2. リスト変数を使った処理</h3>
+<p>
+<code>roles/common/tasks/common-packages.yml</code> を見てみましょう。
+<pre><code>- yum: name={{item}} state=installed
+  with_items:
+    - ntp
+    - bind-utils
+    - unzip
+  tags: common-packages
+</code></pre>
+<code>with_items</code> にインストールされているべきパッケージ名を並べ、それぞれを <a href="ansible-in-detail.html#module-yum">yum モジュール</a>で処理します。
+<code>tags</code> を指定しておくと ansible-playbook の <code>--tags</code> オプションを使うことで指定の tag のついた task だけを実行可能。複数の task に同じ tag を付けられます。
 </p>
 
 <h3>
