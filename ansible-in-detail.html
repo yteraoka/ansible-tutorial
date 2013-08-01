@@ -284,7 +284,6 @@ Ansible の Playbook を書くにはどんな module があるのかを知り、
 <table class="module-option">
 <tr>
   <th>parameter</th>
-  <th>required</th>
   <th>default</th>
   <th>choices</th>
   <th>comments</th>
@@ -292,34 +291,29 @@ Ansible の Playbook を書くにはどんな module があるのかを知り、
 <tr>
   <td>force</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">yes にすると2つのケースでシンボリックリンクを強制的に作成します。1) リンク元ファイルが存在しない場合 2) リンク先にファイルが存在する場合(unlink 後にリンクを作成します)</td>
 </tr>
 <tr>
   <td>group</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">グループ (chown で使うもの)</td>
 </tr>
 <tr>
   <td>mode</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">モード (chmod で使うもの)</td>
 </tr>
 <tr>
   <td>owner</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">ファイルの所有者 (chown で使うもの)</td>
 </tr>
 <tr>
-  <td>path</td>
-  <td>yes</td>
+  <td>path <span class="required">*</span></td>
   <td></td>
   <td></td>
   <td class="comments">ファイルやディレクトリのpath、<code>state=link</code> の場合は <code>src</code> に対するリンク先を指定します。</td>
@@ -327,53 +321,48 @@ Ansible の Playbook を書くにはどんな module があるのかを知り、
 <tr>
   <td>recurse</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">state=directory の場合に attribute 設定を再帰的に行うかどうか</td>
 </tr>
 <tr>
   <td>selevel</td>
-  <td>no</td>
   <td>s0</td>
   <td></td>
   <td class="comments">level part of the SELinux file context. This is the MLS/MCS attribute, sometimes known as the <code>range</code>. <code>_default</code> feature works as for seuser.</td>
 </tr>
 <tr>
   <td>serole</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">role part of SELinux file context, <code>_default</code> feature works as for seuser.</td>
 </tr>
 <tr>
   <td>setype</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">type part of SELinux file context, <code>_default</code> feature works as for seuser.</td>
 </tr>
 <tr>
   <td>seuser</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">user part of SELinux file context. Will default to system policy, if applicable. If set to <code>_default</code>, it will use the <code>user</code> portion of the policy if available.</td>
 </tr>
 <tr>
   <td>src</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">シンボリックリンクのリンク元path</td>
 </tr>
 <tr>
   <td>state</td>
-  <td>no</td>
   <td>file</td>
   <td>file<br>link<br>directory<br>hard<br>absent</td>
   <td class="comments"><code>directory</code> の場合、<code>mkdir -p</code> のように途中の directory も作成します。<code>absent</code> の場合、directory は再帰的に削除され、ファイルやリンクは unlink されます。</td>
 </tr>
 </table>
+<span class="required">*</span> は必須<br>
+<br>
 </p>
 
 <h4><a name="module-copy" class="anchor" href="#module-copy"><span class="octicon octicon-link"></span></a>copy</h4>
@@ -393,7 +382,6 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <table class="module-option">
 <tr>
   <th>parameter</th>
-  <th>required</th>
   <th>default</th>
   <th>choices</th>
   <th>comments</th>
@@ -401,53 +389,48 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <tr>
   <td>backup</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">既存ファイルと内容に差があった場合にバックアップ日時をファイル名に含むバックアップファイルを作成します。</td>
 </tr>
 <tr>
   <td>content</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments"><code>src</code> の代わりに使用することで、ここに設定したデータがファイルの内容となります。</td>
 </tr>
 <tr>
-  <td>dest</td>
-  <td>yes</td>
+  <td>dest <span class="required">*</span></td>
   <td></td>
   <td></td>
   <td class="comments">コピー先の path</td>
 </tr>
 <tr>
   <td>force</td>
-  <td>no</td>
   <td>yes</td>
   <td>yes<br>no</td>
   <td class="comments">デフォルトは yes で、ファイルの内容に差があればコピーします。no の場合はファイルが存在すると上書きしません</td>
 </tr>
 <tr>
   <td>src</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">コピーするファイルのpath。絶対pathでも相対pathでも可</td>
 </tr>
 <tr>
   <td>validate</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">コピーする前に validation するコマンドを指定</td>
 </tr>
 <tr>
   <td>その他</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">file モジュールで指定可能なものすべてが使えます</td>
 </tr>
 </table>
+<span class="required">*</span> は必須<br>
+<br>
 </p>
 
 <h4><a name="module-fetch" class="anchor" href="#module-fetch"><span class="octicon octicon-link"></span></a>fetch</h4>
@@ -457,14 +440,12 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <table class="module-option">
 <tr>
   <th>parameter</th>
-  <th>required</th>
   <th>default</th>
   <th>choices</th>
   <th>comments</th>
 </tr>
 <tr>
-  <td>dest</td>
-  <td>yes</td>
+  <td>dest <span class="required">*</span></td>
   <td></td>
   <td></td>
   <td class="comments">ファイルの保存先を指定します。対象ホストが <code>host.example.com</code> で <code>dest</code> が <code>/backup</code> で、<code>src</code> が <code>/etc/profile</code> の場合、<code>/backup/host.example.com/etc/profile</code> に保存されます。</td>
@@ -472,25 +453,24 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <tr>
   <td>fail_on_missing</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">コピー元ファイルが存在しかなった場合を失敗として扱います。</td>
 </tr>
 <tr>
   <td>flat</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments"><code>hostname/path/to/file</code> というデフォルトの保存先の上書きを許可します。<code>dest</code> が '/' で終わる場合は basename をファイル名としてそのディレクトリに保存します。</td>
 </tr>
 <tr>
   <td>src</td>
-  <td>yes</td>
   <td></td>
   <td></td>
   <td class="comments">fetch するファイルの対象ホスト上の path を指定します。ディレクトリには対応していません。再帰的なコピーは今後のリリースで対応予定です。</td>
 </tr>
 </table>
+<span class="required">*</span> は必須<br>
+<br>
 例
 <pre><code># Store file into /tmp/fetched/host.example.com/tmp/somefile
 - fetch: src=/tmp/somefile dest=/tmp/fetched
@@ -513,28 +493,24 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <table class="module-option">
 <tr>
   <th>parameter</th>
-  <th>required</th>
   <th>default</th>
   <th>choices</th>
   <th>comments</th>
 </tr>
 <tr>
   <td>append</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments"><code>yes</code> の場合、<code>groups</code> への追加だけを行う</td>
 </tr>
 <tr>
   <td>comment</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">アカウントのコメント (GECOS) を指定しる</td>
 </tr>
 <tr>
   <td>createhome</td>
-  <td>no</td>
   <td>yes</td>
   <td>yes<br>no</td>
   <td class="comments"><code>no</code> にしない場合はアカウント作成後にホームディレクトリを作成する</td>
@@ -542,48 +518,41 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <tr>
   <td>force</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments"><code>state=absent</code> の場合、<code>userdel --force</code> として処理される</td>
 </tr>
 <tr>
   <td>generate_ssh_key</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">SSH key を作成するかどうか。既に存在する場合には上書きしません。</td>
 </tr>
 <tr>
   <td>group</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">ユーザーのプライマリグループをグループ名で指定する</td>
 </tr>
 <tr>
   <td>groups</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">カンマ区切りのグループリストにユーザーを追加する。<code>groups=</code> と、空文字列をしていするとプライマリグループ以外から削除します。</td>
 </tr>
 <tr>
   <td>home</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">ホームディレクトリの path を指定する</td>
 </tr>
 <tr>
   <td>login_class</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">FreeBSD, OpenBSD, NetBSD 用の login class を指定する</td>
 </tr>
 <tr>
-  <td>name</td>
-  <td>yes</td>
+  <td>name <span class="required">*</span></td>
   <td></td>
   <td></td>
   <td class="comments">操作対象のユーザー名を指定</td>
@@ -591,13 +560,11 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <tr>
   <td>non_unique</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">ユニークでない uid を許可するかどうか</td>
 </tr>
 <tr>
   <td>password</td>
-  <td>no</td>
   <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">ハッシュ化された文字列を指定することでパスワードを設定する</td>
@@ -605,55 +572,47 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <tr>
   <td>remove</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments"><code>state=absent</code> と同時に指定することで <code>userdel --remote</code> となり、ホームディレクトリも削除される</td>
 </tr>
 <tr>
   <td>shell</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">ログインシェルを指定する</td>
 </tr>
 <tr>
   <td>ssh_key_bits</td>
-  <td>no</td>
   <td>2048</td>
   <td></td>
   <td class="comments">作成する SSH key の bit 数を指定する</td>
 </tr>
 <tr>
   <td>ssh_key_comment</td>
-  <td>no</td>
   <td>ansible-generated</td>
   <td></td>
   <td class="comments">SSH key のコメントを指定する</td>
 </tr>
 <tr>
   <td>ssh_key_file</td>
-  <td>no</td>
   <td>$HOME/.ssh/id_rsa</td>
   <td></td>
   <td class="comments">SSH key ファイルの path を指定する</td>
 </tr>
 <tr>
   <td>ssh_key_passphrase</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">作成する SSH key ファイルのパスフレーズ、指定しない場合はパスフレーズなしの key が作成される</td>
 </tr>
 <tr>
   <td>ssh_key_type</td>
-  <td>no</td>
   <td>rsa</td>
   <td></td>
   <td class="comments">SSH key の暗号アルゴリズムを指定する、利用可能なものはそのホストの環境に依存する</td>
 </tr>
 <tr>
   <td>state</td>
-  <td>no</td>
   <td>present</td>
   <td>present<br>absent</td>
   <td class="comments"><code>absent</code> でユーザーを削除する</td>
@@ -661,25 +620,24 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <tr>
   <td>system</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">システムアカウントとして作成する。既存のアカウントの設定を変更することはできない</td>
 </tr>
 <tr>
   <td>uid</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">uid を指定する</td>
 </tr>
 <tr>
   <td>update_password</td>
-  <td>no</td>
   <td>always</td>
   <td>always<br>on_create</td>
   <td class="comments">パスワードをいつでも変更可能 (<code>always</code>) にするか、作成時 (<code>on_create</code>) のみにするか</td>
 </tr>
 </table>
+<span class="required">*</span> は必須<br>
+<br>
 
 <code>useradd</code>, <code>userdel</code>, <code>usermod</code> コマンドが必要。
 
@@ -705,14 +663,12 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 <table class="module-option">
 <tr>
   <th>parameter</th>
-  <th>required</th>
   <th>default</th>
   <th>choices</th>
   <th>comments</th>
 </tr>
 <tr>
   <td>conf_file</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">対象ホストで /etc/yum.conf 以外を使う場合に指定</td>
@@ -720,46 +676,41 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 <tr>
   <td>disable_gpg_check</td>
   <td>no</td>
-  <td>no</td>
   <td>yes<br>no</td>
   <td class="comments">パッケージのシグネチャチェックを無効にする</td>
 </tr>
 <tr>
   <td>disablerepo</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">実行時に無効にしたいリポジトリを指定する。カンマ区切りで複数指定可能</td>
 </tr>
 <tr>
   <td>enablerepo</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">デフォルトで無効にしているが実行時に有効にしたいリポジトリを指定する。カンマ区切りで複数指定可能</td>
 </tr>
 <tr>
   <td>list</td>
-  <td>no</td>
   <td></td>
   <td></td>
   <td class="comments">ansible-playbook ではなく ansible コマンド用。冪等でない。例を見よと書いてあるが例に載ってない...</td>
 </tr>
 <tr>
-  <td>name</td>
-  <td>yes</td>
+  <td>name <span class="required">*</span></td>
   <td></td>
   <td></td>
   <td class="comments">パッケージ名 <code>state=latest</code> で <code>name=*</code> の場合は <code>yum -y update</code> を意味する </td>
 </tr>
 <tr>
   <td>state</td>
-  <td>no</td>
   <td>present</td>
   <td>present<br>latest<br>absent</td>
   <td class="comments"><code>present</code> はインストールされていること、最新は求めない。<code>lastest</code> は最新に更新する。<code>absent</code> はインストールされていない状態にする</td>
 </tr>
 </table>
+<span class="required">*</span> は必須<br>
 <br>
 例
 <pre><code>- yum: name=httpd state=latest
