@@ -104,7 +104,9 @@ table.module-option td.comments {
       <li><a href="#module-file">file</a> (ファイル・ディレクトリ操作)</li>
       <li><a href="#module-copy">copy</a> (ファイルを配る)</li>
       <li><a href="#module-fetch">fetch</a> (ファイルを収集する)</li>
+      <li><a href="#module-lineinfile">user</a> (ファイルの行を編集)</li>
       <li><a href="#module-user">user</a> (ユーザーアカウントの管理)</li>
+      <li><a href="#module-yum">yum</a> (yum でのパッケージ管理)</li>
     </ul>
   </li>
   <li><a href="#advanced-playbook">Advanced Playbook</a></li>
@@ -487,6 +489,102 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 </p>
 
 
+<h4><a name="module-lineinfile" class="anchor" href="#module-lineinfile"><span class="octicon octicon-link"></span></a>lineinfile</h4>
+<p>
+
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>backrefs</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments"><code>state=present</code> とともに使います。
+セットされている場合 backreferences (ポジションと名前付きの両方) を使うことができます。このフラグはモジュールの動作を変えます。insertbefore と insertafter は無視されます。正規表現がどこにもマッチしない場合、ファイルは更新されません。複数行にマッチした場合、最後にマッチした行が置換されます。</td>
+</tr>
+<tr>
+  <td>backup</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments">タイムスタンプを含むファイル名でバックアップファイルを作成します。</td>
+</tr>
+<tr>
+  <td>create</td>
+  <td>no</td>
+  <td>yes<br>no</td>
+  <td class="comments"><code>state=present</code> とともに使います。<code>yes</code> の場合、ファイルが存在しない場合に作成します。デフォルトではファイルが存在しない場合はエラーとなります。</td>
+</tr>
+<tr>
+  <td>dest <span class="required">*</san></td>
+  <td></td>
+  <td></td>
+  <td class="comments">編集するファイルのパス</td>
+</tr>
+<tr>
+  <td>insertafter</td>
+  <td></td>
+  <td>EOF<br>*regex*</td>
+  <td class="comments"><code>state=present</code> とともに使います。
+<code>regexp</code> にマッチすればその行を置換するが、マッチしなかった場合にこの値にマッチした行の次の行として <code>line</code> を挿入します。
+<code>EOF</code> という値は特別で、ファイル末尾に挿入されます。<code>backrefs</code> を有効にするとこのオプションは無視されます。</td>
+</tr>
+<tr>
+  <td>insertbefore</td>
+  <td></td>
+  <td>EOF<br>*regex*</td>
+  <td class="comments"><code>insertafter</code> とほぼ同じ動作ですが、次の行ではなく前の行として挿入されます。</td>
+</tr>
+<tr>
+  <td>line</td>
+  <td></td>
+  <td></td>
+  <td class="comments"><code>state=present</code> では必須。ファイルに挿入、置換する行。<code>backrefs=yes</code> の場合、正規表現の backreference が使える。<br>\1, \2 や \g&lt;name&gt;</td>
+</tr>
+<tr>
+  <td>regexp <span class="required">*</span></td>
+  <td></td>
+  <td></td>
+  <td class="comments">対象の行を探す正規表現を指定します。<code>state=present</code> では行を置換します。複数行にマッチする場合最後にマッチした行が置換されます。<code>state=absent</code> の場合はマッチした行が削除されます。Python の正規表現を確認してください <a href="http://docs.python.org/2/library/re.html">http://docs.python.org/2/library/re.html</a></td>
+</tr>
+<tr>
+  <td>state</td>
+  <td>present</td>
+  <td>present<br>absent</td>
+  <td class="comments"><code>absent</code> の場合は <code>regexp</code> にマッチする行を削除します。<code>present</code> の場合は他のオプションによってさまざまな動作をします。</td>
+</tr>
+<tr>
+  <td>その他</td>
+  <td></td>
+  <td></td>
+  <td class="comments">file モジュールで指定可能なものすべてが使えます</td>
+</tr>
+</table>
+
+<pre><code>- lineinfile: dest=/etc/selinux/config regexp=^SELINUX= line=SELINUX=disabled
+
+- lineinfile: dest=/etc/sudoers state=absent regexp="^%wheel"
+
+- lineinfile: dest=/etc/hosts regexp='^127\.0\.0\.1' line='127.0.0.1 localhost' owner=root group=root mode=0644
+
+- lineinfile: dest=/etc/httpd/conf/httpd.conf regexp="^Listen " insertafter="^#Listen " line="Listen 8080"
+
+- lineinfile: dest=/etc/services regexp="^# port for http" insertbefore="^www.*80/tcp" line="# port for http by default"
+
+- lineinfile: dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'
+
+# オリジナルのドキュメントにはこう書いてあるんだけど間違ってる？
+- lineinfile: dest=/opt/jboss-as/bin/standalone.conf regexp='^(.*)Xms(\d+)m(.*)$' line='\1Xms${xms}m\3' backrefs=yes
+
+# これが正解？
+- lineinfile: dest=/opt/jboss-as/bin/standalone.conf regexp='^(.*)Xms(?P&lt;xms&gt;\d+)m(.*)$' line='\1Xms\g&lt;xms&gt;m\3' backrefs=yes
+</code></pre>
+</p>
+
+
 <h4><a name="module-user" class="anchor" href="#module-user"><span class="octicon octicon-link"></span></a>user</h4>
 <p>
 ユーザーアカウントの管理をするモジュールです。
@@ -727,6 +825,7 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 これ必見!!
 <a href="http://www.ansibleworks.com/docs/playbooks2.html/">高度な Playbook の書き方</a>
 </p>
+
 
 <!--
 <h3><a name="inventory-file" class="anchor" href="#inventory-file"><span class="octicon octicon-link"></span></a>インベントリファイル</h3>

@@ -169,7 +169,7 @@ code, pre {
   font-family: "Courier New", Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal;
   color: #222;
   margin-top: 6px;
-  margin-bottom: 2em;
+  margin-bottom: 0.5em;
   font-size: 14px;
 }
 
@@ -337,6 +337,10 @@ footer a:hover {
 .clearfix {display: inline-block;}
 * html .clearfix {height: 1%;}
 .clearfix {display: block;}
+
+span.required {
+  color: red;
+}
 
 /* #Media Queries
 ================================================== */
