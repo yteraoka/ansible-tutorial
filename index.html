@@ -428,9 +428,9 @@ playbook: site.yml
     unzip wordpress zip file
 
 </code></pre>
-
-
-次のように実行します。
+「yum name={{item}} state=installed」は<code>name:</code>を設定し忘れているので内容がそのまま出てます。<br>
+<br>
+実際の実行は次のコマンドになります。
 <pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
 </code></pre>
 
