@@ -107,6 +107,7 @@ table.module-option td.comments {
       <li><a href="#module-lineinfile">lineinfile</a> (ファイルの行を編集)</li>
       <li><a href="#module-user">user</a> (ユーザーアカウントの管理)</li>
       <li><a href="#module-yum">yum</a> (yum でのパッケージ管理)</li>
+      <li><a href="#module-command">command</a> (任意のコマンドを実行する)</li>
     </ul>
   </li>
   <li><a href="#advanced-playbook">Advanced Playbook</a></li>
@@ -493,7 +494,9 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <p>
 
 デフォルトの config ファイルなどを置換で変換する用途に使うと便利そうです。
-<code>insertafter</code>, <code>insertbefore</code> を使うことでコメントアウトされてるかもしれないファイルをうまく扱うことができるようです。
+<code>insertafter</code>, <code>insertbefore</code> を使うことでコメントアウトされてるかもしれないファイルをうまく扱うことができるようです。<br>
+<br>
+しかし、同じファイルに対して <code>backup=yes</code> な <code>lineinfile</code> タスクを複数定義してもバックアップファイルの timestamp は分の精度であるためか、最後の変更のバックアップしか残らない。
 
 <table class="module-option">
 <tr>
@@ -823,12 +826,67 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 </p>
 
 
+<h4><a name="module-command" class="anchor" href="#module-command"><span class="octicon octicon-link"></span></a>command</h4>
+<p>
+<code>command</code> モジュールはスペース区切りの引数とともにコマンドを対象のサーバー上で実行します。ただし、このコマンドは shell に渡されるわけではないため "&lt;", "&gt;", "|", "&amp;" や $HOME などの変数を使うことはできません。また、path は絶対パスで指定する必要があります。
+
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>chdir</td>
+  <td></td>
+  <td></td>
+  <td class="comments">コマンドを特定のディレクトリで実行する必要がある場合に指定します</td>
+</tr>
+<tr>
+  <td>creates</td>
+  <td></td>
+  <td></td>
+  <td class="comments">このコマンドの実行結果として、作成されるファイルの path を指定します。ファイルが存在する場合はコマンドを実行しません</td>
+</tr>
+<tr>
+  <td>executable</td>
+  <td></td>
+  <td></td>
+  <td class="comments">subprocess.Popen の executable オプション</td>
+</tr>
+<tr>
+  <td>free_form <span class="required">*</span></td>
+  <td></td>
+  <td></td>
+  <td class="comments">実行するコマンドをスペース区切りの引数付きで指定します</td>
+</tr>
+<tr>
+  <td>removes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">このコマンドの実行結果として、削除されるファイルの path を指定します。ファイルが存在しない場合はコマンドを実行しません</td>
+</tr>
+</table>
+
+<pre><code># Example from Ansible Playbooks
+- command: /sbin/shutdown -t now
+
+# 指定したファイルが存在しなかった場合にのみコマンドを実行する
+- command: /usr/bin/make_database.sh arg1 arg2 creates=/path/to/database
+</code></pre>
+
+<strong>Notes</strong><br>
+<code>&lt;</code>, <code>&gt;</code>, <code>|</code> を使うために shell に渡したい場合は <code>shell</code> モジュールを使います。<br><br><code>creates</code>, <code>removes</code>, <code>chdir</code> はコマンドの後に指定します。(コマンドには名前がつかないため)
+
+</p>
+
+
 <h3><a name="advanced-playbook" class="anchor" href="#advanced-playbook"><span class="octicon octicon-link"></span></a>Advanced Playbook</h3>
 <p>
 これ必見!!
 <a href="http://www.ansibleworks.com/docs/playbooks2.html/">高度な Playbook の書き方</a>
 </p>
-
 
 <!--
 <h3><a name="inventory-file" class="anchor" href="#inventory-file"><span class="octicon octicon-link"></span></a>インベントリファイル</h3>
