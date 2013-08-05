@@ -1,4 +1,5 @@
-- yum: name={{item}} state=installed
+- name: be sure common packages are installed
+  yum: name={{item}} state=installed
   with_items:
     - ntp
     - bind-utils

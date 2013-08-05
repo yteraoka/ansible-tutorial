@@ -9,3 +9,8 @@
   notify:
     - restart httpd
   tags: php
+
+- name: disable password authentication
+  lineinfile: dest=/etc/php.ini regexp='^;date.timezone =' line='date.timezone = Asia/Tokyo' owner=root group=root mode=0644
+  notify: restart httpd
+  tags: php

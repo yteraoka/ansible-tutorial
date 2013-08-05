@@ -42,6 +42,7 @@ LoadModule alias_module modules/mod_alias.so
 LoadModule rewrite_module modules/mod_rewrite.so
 User apache
 Group apache
+ServerName {{ansible_hostname}}
 ServerAdmin root@localhost
 UseCanonicalName Off
 DocumentRoot "/var/www/wordpress"

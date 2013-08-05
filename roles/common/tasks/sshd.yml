@@ -1,3 +1,14 @@
 - name: disable password authentication
-  lineinfile: dest=/etc/ssh/sshd_config regexp='^PasswordAuthentication' line='PasswordAuthentication no' owner=root group=root mode=0600
+  lineinfile: dest=/etc/ssh/sshd_config regexp='^PasswordAuthentication' line='PasswordAuthentication no' insertafter='PasswordAuthentication no' owner=root group=root mode=0600 backup=yes
   notify: restart sshd
+  tags: sshd
+
+- name: disable root login
+  lineinfile: dest=/etc/ssh/sshd_config regexp='^PermitRootLogin' line='PermitRootLogin no' insertafter='#PermitRootLogin' owner=root group=root mode=0600 backup=yes
+  notify: restart sshd
+  tags: sshd
+
+- name: disable GSSAPI Authentication
+  lineinfile: dest=/etc/ssh/sshd_config regexp='^GSSAPIAuthentication' line='GSSAPIAuthentication no' insertafter='#GSSAPIAuthentication' owner=root group=root mode=0600 backup=yes
+  notify: restart sshd
+  tags: sshd

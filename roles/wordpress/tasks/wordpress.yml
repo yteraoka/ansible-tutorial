@@ -1,6 +1,12 @@
 - name: copy wordpress zip file
   copy: src=wordpress-${wordpress-version}.zip dest=/var/tmp/wordpress-${wordpress-version}.zip
+  tags: wordpress
 
 - name: unzip wordpress zip file
   shell: /usr/bin/unzip /var/tmp/wordpress-${wordpress-version}.zip chdir=/var/www creates=/var/www/wordpress/wp-admin/index.php
   notify: change wordpress files owner
+  tags: wordpress
+
+- name: configure wp-config.php
+  template: src=wp-config.php.j2 dest=/var/www/wordpress/wp-config.php owner=apache group=apache mode=0400
+  tags: wordpress
