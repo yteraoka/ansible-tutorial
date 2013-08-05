@@ -95,14 +95,22 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
   <li><a href="#prepare-ansible">Ansible を使うための準備</a></li>
   <li><a href="#test-ansible">Ansible の疎通確認</a></li>
   <li><a href="#simple-playbook">簡単な Playbook を書いて試す</a></li>
-  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a> (途中)
+  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a>
     <ol>
       <li><a href="#best-practices-directory">各ディレクトリ、ファイルの役割・意味</a>
       <li><a href="#list-variable">リスト型変数を使った処理</a>
       <li><a href="#mysql">MySQL 関連</a>
     </ol>
   </li>
-  <li><a href="#test-with-serverspec">serverspec でテストする</a> (まだなにも)</li>
+  <li><a href="#test-with-serverspec">serverspec でテストする</a>
+    <ol>
+      <li><a href="#install-ruby">Ruby のインストール</a>
+      <li><a href="#install-serverspec">ServerSpec のインストール</a>
+      <li><a href="#execute-serverspec">ServerSpec を実行してみる</a>
+      <li><a href="#test-mysqld">mysqld のテストを作成</a>
+      <li><a href="#test-wordpress">WordPress のテストを作成</a>
+    </ol>
+  </li>
   <li><a href="ansible-in-detail.html">もっと知る</a></li>
 </ol>
 </p>
@@ -525,7 +533,111 @@ playbook: site.yml
 <h3>
 <a name="test-with-serverspec" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>7. serverspec でテストする</h3>
 <p>
-まだ先。でもここは JTF のと同じかな？
+</p>
+
+<h3><a name="install-ruby" class="anchor" href="#install-ruby"><span class="octicon octicon-link"></span></a>7.1. Ruby のインストール</h3>
+<p>
+CentOS 6 はいまだに 1.8.7 だから最新のバージョンを /opt/ruby-2.0.0 にインストール<br>
+<br>
+まずは Ruby のコンパイルに必要なものをインストール
+<pre><code>$ sudo yum -y install git gcc gcc-c++ make patch readline-devel zlib-devel libyaml-devel</code></pre>
+
+ruby-build を git clone する
+<pre><code>$ git clone -q git://github.com/sstephenson/ruby-build.git</code></pre>
+
+2.0.0-p247 をインストール
+<pre><code>$ cd ruby-build
+$ sudo bin/ruby-build 2.0.0-p247 /opt/ruby-2.0.0
+</code></pre>
+Tea Time...<br>
+Ruby や Perl のコンパイルには結構時間がかかりますねぇ。
+</p>
+
+<h3><a name="install-serverspec" class="anchor" href="#install-serverspec"><span class="octicon octicon-link"></span></a>7.2. ServerSpec のインストール</h3>
+<pre><code>$ sudo /opt/ruby-2.0.0/bin/gem install serverspec</code></pre>
+あ、bundler 使ったほうが良かったかな？
+
+
+<h3><a name="execute-serverspec" class="anchor" href="#execute-serverspec"><span class="octicon octicon-link"></span></a>7.3. ServerSpec を実行してみる</h3>
+
+まずは <code>serverspec-init</code> コマンドで土台を作ります。
+
+<pre><code>$ /opt/ruby-2.0.0/bin/serverspec-init
+Select a backend type:
+
+  1) SSH
+  2) Exec (local)
+
+Select number: 1
+
+Vagrant instance y/n: n
+Input target host name: 192.168.33.12
+ + spec/
+ + spec/192.168.33.12/
+ + spec/192.168.33.12/httpd_spec.rb
+ + spec/spec_helper.rb
+ + Rakefile
+</code></pre>
+Vagrant 使ってるけど、Vagrant の Guest 同士での SSH だから Vagrant じゃないよと。<br>
+今回の設定では httpd.conf の ServerName は localhost となっているのでテストをちょっといじる
+<pre><code>$ sed -i 's/192.168.33.12/localhost/' spec/192.168.33.12/httpd_spec.rb</code></pre>
+
+それでは rake コマンドでテストを実行してみましょう
+
+<pre><code>$ /opt/ruby-2.0.0/bin/rake spec
+/opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb
+/opt/ruby-2.0.0/bin/ruby: No such file or directory -- rspec (LoadError)
+rake aborted!
+/opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb failed
+
+Tasks: TOP =&gt; spec
+(See full trace by running task with --trace)
+</code></pre>
+
+あらら、失敗。PATH の問題っぽい。
+<pre><code>$ PATH=/opt/ruby-2.0.0/bin:$PATH
+$ /opt/ruby-2.0.0/bin/rake spec
+/opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb
+......
+
+Finished in 0.62573 seconds
+6 examples, 0 failures</code></pre>
+成功しました。<br>
+<code>spec/192.168.33.12/httpd_spec.rb</code> に書いてあるテストが実行されました。<br>
+内容は次の通り
+<ul>
+  <li>httpd パッケージがインストールされていること</li>
+  <li>httpd サービスが有効になっていること (<code>chkconfig httpd on</code> 状態)</li>
+  <li>httpd が起動していること</li>
+  <li>ポート 80 が LISTEN 状態となっていること</li>
+  <li><code>/etc/httpd/conf/httpd.conf</code> ファイルが存在すること</li>
+  <li>httpd.conf に "ServerName localhost" が含まれること</li>
+</ul>
+</p>
+
+<h3><a name="test-mysqld" class="anchor" href="#test-mysqld"><span class="octicon octicon-link"></span></a>7.4. mysqld のテストを作成</h3>
+<p>
+<code>httpd_spec.rb</code> を参考に mysqld のテストを作成しましょう。<br>
+これは JTF <del>のパクリですね</del> とまったく同じ課題ですね。
+<ul>
+  <li>mysql-server パッケージがインストールされていること</li> 
+  <li>mysqld デーモンが有効化されていること (chkconfig mysqld on されていること)</li> 
+  <li>mysqld デーモンが起動していること</li> 
+  <li>3306 ポートが LISTEN していること</li> 
+</ul>
+
+<pre><code>$ vi spec/192.168.33.12/mysqld_spec.rb</code></pre>
+
+(例はこちら: <a href="https://gist.github.com/yteraoka/6156753">https://gist.github.com/yteraoka/6156753</a>)
+</p>
+
+<h3><a name="test-wordpress" class="anchor" href="#test-wordpress"><span class="octicon octicon-link"></span></a>7.5. WordPress のテストを作成</h3>
+<p>
+Chef 版との違いが出ましたよ。WordPress が日本語版だったので出力されるHTMLが日本語です。
+http://localhost/wp-admin/install.php にアクセスすると出力されるメッセージ(HTML)に「<strong>5分でできる WordPress の有名なインストールプロセスへようこそ</strong>」が含まれることをチェックしましょう。<br>
+<br>
+あぁぁ、ServerSpec の command 出力を日本語でマッチさせる方法がわからん...<br>
+誰か教えてくださいまし。
 </p>
         </section>
 
