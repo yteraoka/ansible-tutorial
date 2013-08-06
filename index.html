@@ -83,7 +83,10 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
 </p>
 <p>
 ※鋭意作成中です。<br>
-<a href="https://github.com/yteraoka/ansible-tutorial/">https://github.com/yteraoka/ansible-tutorial/</a> コメントなどお待ちしております。
+そのため Github にある playbook を実行した結果と必ずしも同じでは無いことがあります。<br>
+<a href="https://github.com/yteraoka/ansible-tutorial/">https://github.com/yteraoka/ansible-tutorial/</a> コメントなどお待ちしております。<br>
+<br>
+少しずつ更新してます、また来てね。
 </p>
 
 <h3><a name="table-of-contents" class="anchor" href="#table-of-contents"><span class="octicon octicon-link"></span></a>目次</h3>
@@ -369,42 +372,45 @@ PLAY RECAP ********************************************************************
 
 このファイルは <a href="https://github.com/yteraoka/ansible-tutorial/archive/playbook.zip">https://github.com/yteraoka/ansible-tutorial/archive/playbook.zip</a> からダウンロードできます。
 
-<pre><code>$ tree -F
+<pre><code>$ <span class="console-input">tree</span>
 .
-|-- common.yml
-|-- group_vars/
-|-- host_vars/
-|-- roles/
-|   |-- common/
-|   |   |-- files/
-|   |   |-- handlers/
-|   |   |   `-- main.yml
-|   |   |-- tasks/
-|   |   |   |-- common-packages.yml
-|   |   |   |-- epel.yml
-|   |   |   |-- main.yml
-|   |   |   |-- ntp.yml
-|   |   |   `-- sshd.yml
-|   |   |-- templates/
-|   |   `-- vars/
-|   `-- wordpress/
-|       |-- files/
-|       |   `-- wordpress-3.5.2-ja.zip
-|       |-- handlers/
-|       |   `-- main.yml
-|       |-- tasks/
-|       |   |-- httpd.yml
-|       |   |-- main.yml
-|       |   |-- mysql.yml
-|       |   |-- php.yml
-|       |   `-- wordpress.yml
-|       |-- templates/
-|       |   `-- httpd.conf.j2
-|       `-- vars/
-|           `-- main.yml
-|-- site.yml
-|-- test-servers
-`-- wordpress.yml
+├── common.yml
+├── group_vars
+├── host_vars
+├── roles
+│   ├── common
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   ├── common-packages.yml
+│   │   │   ├── epel.yml
+│   │   │   ├── main.yml
+│   │   │   ├── ntp.yml
+│   │   │   └── sshd.yml
+│   │   ├── templates
+│   │   └── vars
+│   └── wordpress
+│       ├── files
+│       │   └── wordpress-3.5.2-ja.zip
+│       ├── handlers
+│       │   └── main.yml
+│       ├── tasks
+│       │   ├── httpd.yml
+│       │   ├── main.yml
+│       │   ├── mysql.yml
+│       │   ├── php.yml
+│       │   └── wordpress.yml
+│       ├── templates
+│       │   ├── httpd.conf.j2
+│       │   └── wp-config.php.j2
+│       └── vars
+│           └── main.yml
+├── site.yml
+├── test-servers
+└── wordpress.yml
+
+15 directories, 20 files
 </code></pre>
 
 タスクの一覧を確認するには次のように <code>--list-tasks</code> オプションをつけて <code>ansible-playboook</code> コマンドを実行します。
@@ -414,7 +420,7 @@ playbook: site.yml
 
   play #1 (all): task count=7
     be sure epel repository is installed
-    yum name={{item}} state=installed
+    be sure common packages are installed
     disable password authentication
     be sure ntpd is running and enabled
 
@@ -436,7 +442,7 @@ playbook: site.yml
     unzip wordpress zip file
 
 </code></pre>
-「yum name={{item}} state=installed」は<code>name:</code>を設定し忘れているので内容がそのまま出てます。<br>
+(随時更新しているため↑この内容は現在の repository のものとはずれてる場合があります)
 <br>
 実際の実行は次のコマンドになります。
 <pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
@@ -478,7 +484,8 @@ playbook: site.yml
 <a name="list-variable" class="anchor" href="#list-variable"><span class="octicon octicon-link"></span></a>6.2. リスト変数を使った処理</h3>
 <p>
 <code>roles/common/tasks/common-packages.yml</code> を見てみましょう。
-<pre><code>- yum: name={{item}} state=installed
+<pre><code>- name: be sure common packages are installed
+  yum: name={{item}} state=installed
   with_items:
     - ntp
     - bind-utils
@@ -540,21 +547,20 @@ playbook: site.yml
 CentOS 6 はいまだに 1.8.7 だから最新のバージョンを /opt/ruby-2.0.0 にインストール<br>
 <br>
 まずは Ruby のコンパイルに必要なものをインストール
-<pre><code>$ sudo yum -y install git gcc gcc-c++ make patch readline-devel zlib-devel libyaml-devel</code></pre>
+<pre><code>$ <span class="console-input">sudo yum -y install git gcc gcc-c++ make patch readline-devel zlib-devel libyaml-devel</span></code></pre>
 
 ruby-build を git clone する
-<pre><code>$ git clone -q git://github.com/sstephenson/ruby-build.git</code></pre>
+<pre><code>$ <span class="console-input">git clone -q git://github.com/sstephenson/ruby-build.git</span></code></pre>
 
 2.0.0-p247 をインストール
-<pre><code>$ cd ruby-build
-$ sudo bin/ruby-build 2.0.0-p247 /opt/ruby-2.0.0
-</code></pre>
+<pre><code>$ <span class="console-input">cd ruby-build</span>
+$ <span class="console-input">sudo bin/ruby-build 2.0.0-p247 /opt/ruby-2.0.0</span></code></pre>
 Tea Time...<br>
 Ruby や Perl のコンパイルには結構時間がかかりますねぇ。
 </p>
 
 <h3><a name="install-serverspec" class="anchor" href="#install-serverspec"><span class="octicon octicon-link"></span></a>7.2. ServerSpec のインストール</h3>
-<pre><code>$ sudo /opt/ruby-2.0.0/bin/gem install serverspec</code></pre>
+<pre><code>$ <span class="console-input">sudo /opt/ruby-2.0.0/bin/gem install serverspec</span></code></pre>
 あ、bundler 使ったほうが良かったかな？
 
 
@@ -562,7 +568,7 @@ Ruby や Perl のコンパイルには結構時間がかかりますねぇ。
 
 まずは <code>serverspec-init</code> コマンドで土台を作ります。
 
-<pre><code>$ /opt/ruby-2.0.0/bin/serverspec-init
+<pre><code>$ <span class="console-input">/opt/ruby-2.0.0/bin/serverspec-init</span>
 Select a backend type:
 
   1) SSH
@@ -580,11 +586,11 @@ Input target host name: 192.168.33.12
 </code></pre>
 Vagrant 使ってるけど、Vagrant の Guest 同士での SSH だから Vagrant じゃないよと。<br>
 今回の設定では httpd.conf の ServerName は localhost となっているのでテストをちょっといじる
-<pre><code>$ sed -i 's/192.168.33.12/localhost/' spec/192.168.33.12/httpd_spec.rb</code></pre>
+<pre><code>$ <span class="console-input">sed -i 's/192.168.33.12/localhost/' spec/192.168.33.12/httpd_spec.rb</span></code></pre>
 
 それでは rake コマンドでテストを実行してみましょう
 
-<pre><code>$ /opt/ruby-2.0.0/bin/rake spec
+<pre><code>$ <span class="console-input">/opt/ruby-2.0.0/bin/rake spec</span>
 /opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb
 /opt/ruby-2.0.0/bin/ruby: No such file or directory -- rspec (LoadError)
 rake aborted!
@@ -595,8 +601,8 @@ Tasks: TOP =&gt; spec
 </code></pre>
 
 あらら、失敗。PATH の問題っぽい。
-<pre><code>$ PATH=/opt/ruby-2.0.0/bin:$PATH
-$ /opt/ruby-2.0.0/bin/rake spec
+<pre><code>$ <span class="console-input">PATH=/opt/ruby-2.0.0/bin:$PATH</span>
+$ <span class="console-input">/opt/ruby-2.0.0/bin/rake spec</span>
 /opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb
 ......
 
@@ -639,6 +645,13 @@ http://localhost/wp-admin/install.php にアクセスすると出力されるメ
 あぁぁ、ServerSpec の command 出力を日本語でマッチさせる方法がわからん...<br>
 誰か教えてくださいまし。
 </p>
+
+
+<h3><a name="more" class="anchor" href="#more"><span class="octicon octicon-link"></span></a>8. もっと知る</h3>
+<p>
+<a href="ansible-in-detail.html">ansible-in-detail.html</a> にモジュールの説明や細かいことを書いています。
+</p>
+
         </section>
 
         <footer>
