@@ -418,12 +418,10 @@ PLAY RECAP ********************************************************************
 
 playbook: site.yml
 
-  play #1 (all): task count=9
+  play #1 (all): task count=7
     be sure epel repository is installed
     be sure common packages are installed
-    disable password authentication
-    disable root login
-    disable GSSAPI Authentication
+    configure sshd_config
     be sure ntpd is running and enabled
 
 Please enter MySQL wordpress user password: 
