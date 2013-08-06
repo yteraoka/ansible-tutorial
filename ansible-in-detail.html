@@ -902,6 +902,7 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 </code></pre>
 
 分の精度の日時だけでのバックアップファイル名を生成するため、一度の playbook 適用内で同一ファイルを複数回更新する処理を行なっても最後の変更分しか残らないので注意が必要。たまたまtaskの間に分が変われば複数ファイルが残ります。
+ファイルのコピーには <code>shutil.copy2</code> が使われているのでメタデータもすべてコピーされます。
 </p>
 
 <h3><a name="advanced-playbook" class="anchor" href="#advanced-playbook"><span class="octicon octicon-link"></span></a>Advanced Playbook</h3>
