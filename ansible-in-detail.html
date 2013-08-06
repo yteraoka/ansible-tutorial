@@ -110,6 +110,7 @@ table.module-option td.comments {
       <li><a href="#module-command">command</a> (任意のコマンドを実行する)</li>
     </ul>
   </li>
+  <li><a href="#backup-file">Backup File</a></li>
   <li><a href="#advanced-playbook">Advanced Playbook</a></li>
 <!--
   <li><a href="#"></a></li>
@@ -881,6 +882,27 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 
 </p>
 
+<h3><a name="backup-file" class="anchor" href="#backup-file"><span class="octicon octicon-link"></span></a>Backup File</h3>
+<p>
+<a href="#module-copy"><code>copy</code></a>, <a href="#module-lineinfile"><code>lineinfile</code></a> などに <code>backup</code> オプションがある。これは更新対象のファイル(path)に日時(%Y-%m-%d@%H:%M~)サフィックスをつけてバックアップとして保存します。変更の必要がない場合はバックアップファイルも作成されません。<br>
+<br>
+当該部分のコードは <code>ansible/module_common.py</code> にある
+<pre><code>
+    def backup_local(self, fn):
+        '''make a date-marked backup of the specified file, return True or False on success or failure'''
+        # backups named basename-YYYY-MM-DD@HH:MM~
+        ext = time.strftime("%Y-%m-%d@%H:%M~", time.localtime(time.time()))
+        backupdest = '%s.%s' % (fn, ext)
+
+        try:
+            shutil.copy2(fn, backupdest)
+        except shutil.Error, e:
+            self.fail_json(msg='Could not make backup of %s to %s: %s' % (fn, backupdest, e))
+        return backupdest
+</code></pre>
+
+分の精度の日時だけでのバックアップファイル名を生成するため、一度の playbook 適用内で同一ファイルを複数回更新する処理を行なっても最後の変更分しか残らないので注意が必要。たまたまtaskの間に分が変われば複数ファイルが残ります。
+</p>
 
 <h3><a name="advanced-playbook" class="anchor" href="#advanced-playbook"><span class="octicon octicon-link"></span></a>Advanced Playbook</h3>
 <p>
