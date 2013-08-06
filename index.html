@@ -495,7 +495,23 @@ Please enter MySQL wordpress user password:
   tags: common-packages
 </code></pre>
 <code>with_items</code> にインストールされているべきパッケージ名を並べ、それぞれを <a href="ansible-in-detail.html#module-yum">yum モジュール</a>で処理します。
-<code>tags</code> を指定しておくと ansible-playbook の <code>--tags</code> オプションを使うことで指定の tag のついた task だけを実行可能。複数の task に同じ tag を付けられます。
+<code>tags</code> を指定しておくと ansible-playbook の <code>--tags</code> オプションを使うことで指定の tag のついた task だけを実行可能。複数の task に同じ tag を付けられます。<br>
+
+<br>
+
+<code>roles/common/tasks/sshd.yml</code> でも sshd_config の複数行の編集をまとめるために <code>with_items</code> を使っています。
+<pre><code>- name: configure sshd_config
+  lineinfile: dest=/etc/ssh/sshd_config owner=root group=root mode=0600 backup=yes {{item}}
+  with_items:
+    - regexp='^PasswordAuthentication' line='PasswordAuthentication no' insertafter='PasswordAuthentication no'
+    - regexp='^PermitRootLogin' line='PermitRootLogin no' insertafter='#PermitRootLogin'
+    - regexp='^GSSAPIAuthentication' line='GSSAPIAuthentication no' insertafter='#GSSAPIAuthentication'
+  notify: restart sshd
+  tags: sshd
+</code></pre>
+それぞれ別の task にしてしまうと <code>notify</code> によて3度も sshd の restart が必要になってしまう...と思ったら、別々にしても <code>notify</code> は一度しか処理されませんでした。よって、こういう場合はわかりやすい書き方を選ぶのが良いでしょう。<br>
+<br>
+<a href="ansible-in-detail.html#module-lineinfile"><code>lineinfile</code></a> モジュールは設定ファイルの置換に便利です。<code>insertafter</code> や <code>backref</code> オプションは要<a href="ansible-in-detail.html#module-lineinfile">チェック</a>です。
 </p>
 
 <h3>
