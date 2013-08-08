@@ -108,6 +108,7 @@ table.module-option td.comments {
       <li><a href="#module-user">user</a> (ユーザーアカウントの管理)</li>
       <li><a href="#module-yum">yum</a> (yum でのパッケージ管理)</li>
       <li><a href="#module-command">command</a> (任意のコマンドを実行する)</li>
+      <li><a href="#module-pause">pause</a> (一時停止)</li>
     </ul>
   </li>
   <li><a href="#backup-file">Backup File</a></li>
@@ -126,7 +127,7 @@ Ansible では制御対象のサーバーのリストをインベントリファ
 コマンドラインオプションの他に <code>ANSIBLE_HOSTS</code> という環境変数で指定することもできます。
 <pre><code>$ <span class="console-input">export ANSIBLE_HOSTS=/path/to/inventory-file</span></code></pre>
 
-<h4><a name="inventory-file-grouping" class="anchor" href="#inventory-file-grouping"><span class="octicon octicon-link"></span></a>グルーピング</h4>
+<h3><a name="inventory-file-grouping" class="anchor" href="#inventory-file-grouping"><span class="octicon octicon-link"></span></a>グルーピング</h3>
 インベントリファイルには対象ホストのホスト名もしくはIPアドレスを列挙します。
 グルーピングすることができ、playbook の <code>hosts</code> 設定で対象を特定のグループに絞ったりできます。<br>
 <br>
@@ -158,7 +159,7 @@ db-[a:f].example.com
 <br>
 <br>
 
-<h4><a name="inventory-file-hostvars" class="anchor" href="#inventory-file-hostvars"><span class="octicon octicon-link"></span></a>ホスト変数</h4>
+<h3><a name="inventory-file-hostvars" class="anchor" href="#inventory-file-hostvars"><span class="octicon octicon-link"></span></a>ホスト変数</h3>
 インベントリファイルではホスト名、IPアドレスの後ろにそのサーバー用の変数を任意に複数指定できます。
 <pre><code>server1  listen_port=80 relay_server=relay1
 server2 listen_port=81 relay_server=relay2</pre></code>
@@ -275,15 +276,10 @@ ansible_ssh_port=1234
 Ansible の Playbook を書くにはどんな module があるのかを知り、用途にあったものを使うようにする必要があります。
 </p>
 
-<h4><a name="module-file" class="anchor" href="#module-file"><span class="octicon octicon-link"></span></a>file</h4>
+<h3><a name="module-file" class="anchor" href="#module-file"><span class="octicon octicon-link"></span></a>file モジュール</h3>
 <p>
 ファイル、シンボリックリンク、ディレクトリの所有者やモードの設定、削除削除を行うモジュールです。
 他の多くのモジュールが同じオプションをサポートしています copy, template, assemble など。
-<br>
-例
-<pre><code>- file: path=/etc/foo.conf owner=foo group=foo mode=0644
-- file: src=/file/to/link/to dest=/path/to/symlink owner=foo group=foo state=link
-</code></pre>
 
 <table class="module-option">
 <tr>
@@ -367,9 +363,13 @@ Ansible の Playbook を書くにはどんな module があるのかを知り、
 </table>
 <span class="required">*</span> は必須<br>
 <br>
+例
+<pre><code>- file: path=/etc/foo.conf owner=foo group=foo mode=0644
+- file: src=/file/to/link/to dest=/path/to/symlink owner=foo group=foo state=link
+</code></pre>
 </p>
 
-<h4><a name="module-copy" class="anchor" href="#module-copy"><span class="octicon octicon-link"></span></a>copy</h4>
+<h3><a name="module-copy" class="anchor" href="#module-copy"><span class="octicon octicon-link"></span></a>copy モジュール</h3>
 <p>
 Ansible 実行サーバーからリモートサーバーにファイルをコピーするモジュールです。<br>
 このモジュールはディレクトリを再帰的にコピーすることができません。<br>
@@ -437,7 +437,7 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 <br>
 </p>
 
-<h4><a name="module-fetch" class="anchor" href="#module-fetch"><span class="octicon octicon-link"></span></a>fetch</h4>
+<h3><a name="module-fetch" class="anchor" href="#module-fetch"><span class="octicon octicon-link"></span></a>fetch モジュール</h3>
 <p>
 <a href="#module-copy">copy</a> モジュールと似た動作をしますが、これは push ではなく pull となります。コピー元が存在しない場合をエラーとするには <code>fail_on_missing</code> を <code>yes</code> にする必要があります。
 管理対象サーバーからファイルを収集したい場合に利用します。
@@ -491,7 +491,7 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 </p>
 
 
-<h4><a name="module-lineinfile" class="anchor" href="#module-lineinfile"><span class="octicon octicon-link"></span></a>lineinfile</h4>
+<h3><a name="module-lineinfile" class="anchor" href="#module-lineinfile"><span class="octicon octicon-link"></span></a>lineinfile モジュール</h3>
 <p>
 
 デフォルトの config ファイルなどを置換で変換する用途に使うと便利そうです。
@@ -592,7 +592,7 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 </p>
 
 
-<h4><a name="module-user" class="anchor" href="#module-user"><span class="octicon octicon-link"></span></a>user</h4>
+<h3><a name="module-user" class="anchor" href="#module-user"><span class="octicon octicon-link"></span></a>user モジュール</h3>
 <p>
 ユーザーアカウントの管理をするモジュールです。
 <table class="module-option">
@@ -761,7 +761,7 @@ Ansible 実行サーバーからリモートサーバーにファイルをコピ
 </p>
 
 
-<h4><a name="module-yum" class="anchor" href="#module-yum"><span class="octicon octicon-link"></span></a>yum</h4>
+<h3><a name="module-yum" class="anchor" href="#module-yum"><span class="octicon octicon-link"></span></a>yum モジュール</h3>
 <p>
 yum を使ってパッケージのインストール、更新、削除、リストを行うモジュールです。
 
@@ -827,7 +827,7 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 </p>
 
 
-<h4><a name="module-command" class="anchor" href="#module-command"><span class="octicon octicon-link"></span></a>command</h4>
+<h3><a name="module-command" class="anchor" href="#module-command"><span class="octicon octicon-link"></span></a>command モジュール</h3>
 <p>
 <code>command</code> モジュールはスペース区切りの引数とともにコマンドを対象のサーバー上で実行します。ただし、このコマンドは shell に渡されるわけではないため "&lt;", "&gt;", "|", "&amp;" や $HOME などの変数を使うことはできません。また、path は絶対パスで指定する必要があります。
 
@@ -869,7 +869,9 @@ yum を使ってパッケージのインストール、更新、削除、リス�
   <td class="comments">このコマンドの実行結果として、削除されるファイルの path を指定します。ファイルが存在しない場合はコマンドを実行しません</td>
 </tr>
 </table>
-
+<span class="required">*</span> は必須<br>
+<br>
+例
 <pre><code># Example from Ansible Playbooks
 - command: /sbin/shutdown -t now
 
@@ -882,13 +884,64 @@ yum を使ってパッケージのインストール、更新、削除、リス�
 
 </p>
 
+
+<h3><a name="module-pause" class="anchor" href="#module-pause"><span class="octicon octicon-link"></span></a>pause モジュール</h3>
+<p>
+ポーズモジュールは task の実行後一定時間待つ必要がある場合などに使います。サーバー起動時の初期化に時間がかかるため、起動完了まで待つ場合など。
+<code>minutes</code>, <code>seconds</code> で時間を指定した場合、指定時間経過で自動的に次の task へ進みます。そうでない場合は入力をずっと待ちます。時間を指定した場合もしなかった場合も待っている間に Ctrl-C を入力すると即座に次に進むか、中断してそれ以降の task の実行も行わないかの選択プロンプトが表示されます。
+
+<pre><code>TASK: [pause test] ************************************************************ 
+[servername]
+Press enter to continue: ^C
+Action? (a)bort/(c)ontinue:
+</code></pre>
+
+<table class="module-option">
+<tr>
+  <th>parameter</th>
+  <th>default</th>
+  <th>choices</th>
+  <th>comments</th>
+</tr>
+<tr>
+  <td>minutes</td>
+  <td></td>
+  <td></td>
+  <td class="comments">指定の分待ちます。経過後自動で先に進みます</td>
+</tr>
+<tr>
+  <td>prompt</td>
+  <td></td>
+  <td></td>
+  <td class="comments">指定の文字列を表示して待ちます</td>
+</tr>
+<tr>
+  <td>seconds</td>
+  <td></td>
+  <td></td>
+  <td class="comments">指定の秒待ちます。経過後自動で先に進みます</td>
+</tr>
+</table>
+<br>
+例
+<pre><code># アプリケーションのキャッシュ生成のため5分待つ
+- pause: minutes=5
+
+# アプリケーションが正しく更新されたことを確認するまで待つ。(何かを入力するまで待つ)
+- pause:
+
+# 更新後の確認事項のリマインダーとして役に立つ
+- pause: prompt="Make sure org.foo.FooOverload exception is not present"
+</code></pre>
+
+</p>
+
 <h3><a name="backup-file" class="anchor" href="#backup-file"><span class="octicon octicon-link"></span></a>Backup File</h3>
 <p>
 <a href="#module-copy"><code>copy</code></a>, <a href="#module-lineinfile"><code>lineinfile</code></a> などに <code>backup</code> オプションがある。これは更新対象のファイル(path)に日時(%Y-%m-%d@%H:%M~)サフィックスをつけてバックアップとして保存します。変更の必要がない場合はバックアップファイルも作成されません。<br>
 <br>
 当該部分のコードは <code>ansible/module_common.py</code> にある
-<pre><code>
-    def backup_local(self, fn):
+<pre><code>    def backup_local(self, fn):
         '''make a date-marked backup of the specified file, return True or False on success or failure'''
         # backups named basename-YYYY-MM-DD@HH:MM~
         ext = time.strftime("%Y-%m-%d@%H:%M~", time.localtime(time.time()))
