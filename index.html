@@ -40,6 +40,9 @@ li ol {
   margin-left: 1em;
   margin-bottom: 0;
 }
+blockquote {
+  font-size: 10pt;
+}
     </style>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -89,6 +92,22 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
 少しずつ更新してます、また来てね。
 </p>
 
+
+<h3><a name="about-ansible" class="anchor" href="#about-ansible"><span class="octicon octicon-link"></span></a>Ansible とは</h3>
+<p>
+Ansible のサイト (<a href="http://www.ansibleworks.com/">AnsibleWorks | Radically simple IT orchestration</a>) には次のように書いてあります。
+<blockquote>
+Ansible は非常にシンプルなIT構成エンジンです。これはあなたのアプリケーションやシステムのデプロイを容易にします。スクリプトや専用のコードを書くことなくアプリケーションをデプロイし、更新することができます。エージェントをインストールすることなく、SSH を使い、自然な英語に近い感覚で自動化します。<br>
+Ansible は最もシンプルな構成管理、自動化ツールです。
+</blockquote>
+以下のサイトも参考になります
+<ul>
+  <li><a href="http://apatheia.info/blog/2013/04/06/about-ansible/">構成管理ツール Ansible について - apatheia.info</a></li>
+  <li><a href="http://tdoc.info/blog/2013/04/20/ansible.html">ansibleを使ってみる &mdash; そこはかとなく書くよん。</a></li>
+  <li><a href="https://speakerdeck.com/yeukhon/deploying-with-vagrant-and-ansible">Deploying with Vagrant and Ansible by yeukhon</a> [speakerdeck]<br>(これ、とても良いスライドです。この Tutorial の後にどうぞ..)</li>
+</ul>
+</p>
+
 <h3><a name="table-of-contents" class="anchor" href="#table-of-contents"><span class="octicon octicon-link"></span></a>目次</h3>
 
 <p>
@@ -98,6 +117,7 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
   <li><a href="#prepare-ansible">Ansible を使うための準備</a></li>
   <li><a href="#test-ansible">Ansible の疎通確認</a></li>
   <li><a href="#simple-playbook">簡単な Playbook を書いて試す</a></li>
+  <li><a href="#gather-facts">対象ホストの情報を取得 (GATHERING FACTS)</a></li>
   <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a>
     <ol>
       <li><a href="#best-practices-directory">各ディレクトリ、ファイルの役割・意味</a>
@@ -362,8 +382,353 @@ PLAY RECAP ********************************************************************
 </code></pre>
 </p>
 
+
 <h3>
-<a name="best-practices" class="anchor" href="#best-practices"><span class="octicon octicon-link"></span></a>6. Best Plactices に沿った構成を真似る</h3>
+<a name="gather-facts" class="anchor" href="#gather-facts"><span class="octicon octicon-link"></span></a>6. 対象ホストの情報を取得する</h3>
+<p>
+実行結果に「GATHERING FACTS」と出力されています。このような task は playbook に書いていません。これは何でしょう？結構時間かかってます(非力な virtual server だから?)。<br>
+名前のとおりですが、これは対象サーバーから情報を収集する処理です。次のようにして内容を確認すことができます。
+<pre style="height: 300px;"><code>$ <span class="console-input">ansible -m setup -i hosts 192.168.33.12</span>
+192.168.33.12 | success &gt;&gt; {
+    "ansible_facts": {
+        "ansible_all_ipv4_addresses": [
+            "10.0.2.15", 
+            "192.168.33.12"
+        ], 
+        "ansible_all_ipv6_addresses": [
+            "fe80::a00:27ff:fec9:399e", 
+            "fe80::a00:27ff:fed5:dab6"
+        ], 
+        "ansible_architecture": "x86_64", 
+        "ansible_bios_date": "12/01/2006", 
+        "ansible_bios_version": "VirtualBox", 
+        "ansible_cmdline": {
+            "KEYBOARDTYPE": "pc", 
+            "KEYTABLE": "us", 
+            "LANG": "en_US.UTF-8", 
+            "SYSFONT": "latarcyrheb-sun16", 
+            "quiet": true, 
+            "rd_LVM_LV": "VolGroup/lv_root", 
+            "rd_NO_DM": true, 
+            "rd_NO_LUKS": true, 
+            "rd_NO_MD": true, 
+            "rhgb": true, 
+            "ro": true, 
+            "root": "/dev/mapper/VolGroup-lv_root"
+        }, 
+        "ansible_date_time": {
+            "date": "2013-08-08", 
+            "day": "08", 
+            "epoch": "1375968652", 
+            "hour": "13", 
+            "iso8601": "2013-08-08T13:30:52Z", 
+            "iso8601_micro": "2013-08-08T13:30:52.873665Z", 
+            "minute": "30", 
+            "month": "08", 
+            "second": "52", 
+            "time": "13:30:52", 
+            "tz": "UTC", 
+            "year": "2013"
+        }, 
+        "ansible_default_ipv4": {
+            "address": "10.0.2.15", 
+            "alias": "eth0", 
+            "gateway": "10.0.2.2", 
+            "interface": "eth0", 
+            "macaddress": "08:00:27:c9:39:9e", 
+            "mtu": 1500, 
+            "netmask": "255.255.255.0", 
+            "network": "10.0.2.0", 
+            "type": "ether"
+        }, 
+        "ansible_default_ipv6": {}, 
+        "ansible_devices": {
+            "sda": {
+                "holders": [], 
+                "host": "SATA controller: Intel Corporation 82801HM/HEM (ICH8M/ICH8M-E) SATA Controller [AHCI mode] (rev 02)", 
+                "model": "VBOX HARDDISK", 
+                "partitions": {
+                    "sda1": {
+                        "sectors": "1024000", 
+                        "sectorsize": 512, 
+                        "size": "500.00 MB", 
+                        "start": "2048"
+                    }, 
+                    "sda2": {
+                        "sectors": "1047549952", 
+                        "sectorsize": 512, 
+                        "size": "499.51 GB", 
+                        "start": "1026048"
+                    }
+                }, 
+                "removable": "0", 
+                "rotational": "1", 
+                "scheduler_mode": "cfq", 
+                "sectors": "1048576000", 
+                "sectorsize": "512", 
+                "size": "500.00 GB", 
+                "support_discard": "0", 
+                "vendor": "ATA"
+            }, 
+            "sr0": {
+                "holders": [], 
+                "host": "IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)", 
+                "model": "CD-ROM", 
+                "partitions": {}, 
+                "removable": "1", 
+                "rotational": "1", 
+                "scheduler_mode": "cfq", 
+                "sectors": "2097151", 
+                "sectorsize": "512", 
+                "size": "1024.00 MB", 
+                "support_discard": "0", 
+                "vendor": "VBOX"
+            }, 
+            "sr1": {
+                "holders": [], 
+                "host": "IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)", 
+                "model": "CD-ROM", 
+                "partitions": {}, 
+                "removable": "1", 
+                "rotational": "1", 
+                "scheduler_mode": "cfq", 
+                "sectors": "2097151", 
+                "sectorsize": "512", 
+                "size": "1024.00 MB", 
+                "support_discard": "0", 
+                "vendor": "VBOX"
+            }
+        }, 
+        "ansible_distribution": "CentOS", 
+        "ansible_distribution_release": "Final", 
+        "ansible_distribution_version": "6.4", 
+        "ansible_domain": "localdomain", 
+        "ansible_eth0": {
+            "active": true, 
+            "device": "eth0", 
+            "ipv4": {
+                "address": "10.0.2.15", 
+                "netmask": "255.255.255.0", 
+                "network": "10.0.2.0"
+            }, 
+            "ipv6": [
+                {
+                    "address": "fe80::a00:27ff:fec9:399e", 
+                    "prefix": "64", 
+                    "scope": "link"
+                }
+            ], 
+            "macaddress": "08:00:27:c9:39:9e", 
+            "module": "e1000", 
+            "mtu": 1500, 
+            "type": "ether"
+        }, 
+        "ansible_eth1": {
+            "active": true, 
+            "device": "eth1", 
+            "ipv4": {
+                "address": "192.168.33.12", 
+                "netmask": "255.255.255.0", 
+                "network": "192.168.33.0"
+            }, 
+            "ipv6": [
+                {
+                    "address": "fe80::a00:27ff:fed5:dab6", 
+                    "prefix": "64", 
+                    "scope": "link"
+                }
+            ], 
+            "macaddress": "08:00:27:d5:da:b6", 
+            "module": "e1000", 
+            "mtu": 1500, 
+            "type": "ether"
+        }, 
+        "ansible_form_factor": "Other", 
+        "ansible_fqdn": "localhost.localdomain", 
+        "ansible_hostname": "localhost", 
+        "ansible_interfaces": [
+            "lo", 
+            "eth1", 
+            "eth0"
+        ], 
+        "ansible_kernel": "2.6.32-358.el6.x86_64", 
+        "ansible_lo": {
+            "active": true, 
+            "device": "lo", 
+            "ipv4": {
+                "address": "127.0.0.1", 
+                "netmask": "255.0.0.0", 
+                "network": "127.0.0.0"
+            }, 
+            "ipv6": [
+                {
+                    "address": "::1", 
+                    "prefix": "128", 
+                    "scope": "host"
+                }
+            ], 
+            "mtu": 16436, 
+            "type": "loopback"
+        }, 
+        "ansible_machine": "x86_64", 
+        "ansible_memfree_mb": 323, 
+        "ansible_memtotal_mb": 458, 
+        "ansible_mounts": [
+            {
+                "device": "/dev/mapper/VolGroup-lv_root", 
+                "fstype": "ext4", 
+                "mount": "/", 
+                "options": "rw", 
+                "size_available": 497491697664, 
+                "size_total": 525282689024
+            }, 
+            {
+                "device": "/dev/sda1", 
+                "fstype": "ext4", 
+                "mount": "/boot", 
+                "options": "rw", 
+                "size_available": 448802816, 
+                "size_total": 507744256
+            }, 
+            {
+                "device": "/vagrant", 
+                "fstype": "vboxsf", 
+                "mount": "/vagrant", 
+                "options": "uid=501,gid=501,rw", 
+                "size_available": 72607436800, 
+                "size_total": 117461032960
+            }
+        ], 
+        "ansible_os_family": "RedHat", 
+        "ansible_pkg_mgr": "yum", 
+        "ansible_processor": [
+            "Intel(R) Core(TM) i3-3217U CPU @ 1.80GHz"
+        ], 
+        "ansible_processor_cores": "NA", 
+        "ansible_processor_count": 1, 
+        "ansible_product_name": "VirtualBox", 
+        "ansible_product_serial": "NA", 
+        "ansible_product_uuid": "NA", 
+        "ansible_product_version": "1.2", 
+        "ansible_python_version": "2.6.6", 
+        "ansible_selinux": false, 
+        "ansible_ssh_host_key_dsa_public": "...", 
+        "ansible_ssh_host_key_rsa_public": "...", 
+        "ansible_swapfree_mb": 2559, 
+        "ansible_swaptotal_mb": 2559, 
+        "ansible_system": "Linux", 
+        "ansible_system_vendor": "innotek GmbH", 
+        "ansible_user_id": "vagrant", 
+        "ansible_userspace_architecture": "x86_64", 
+        "ansible_userspace_bits": "64", 
+        "ansible_virtualization_role": "guest", 
+        "ansible_virtualization_type": "virtualbox", 
+        "facter_architecture": "x86_64", 
+        "facter_augeasversion": "0.9.0", 
+        "facter_blockdevice_sda_model": "VBOX HARDDISK", 
+        "facter_blockdevice_sda_size": 536870912000, 
+        "facter_blockdevice_sda_vendor": "ATA", 
+        "facter_blockdevice_sr0_model": "CD-ROM", 
+        "facter_blockdevice_sr0_size": 1073741312, 
+        "facter_blockdevice_sr0_vendor": "VBOX", 
+        "facter_blockdevice_sr1_model": "CD-ROM", 
+        "facter_blockdevice_sr1_size": 1073741312, 
+        "facter_blockdevice_sr1_vendor": "VBOX", 
+        "facter_blockdevices": "sda,sr0,sr1", 
+        "facter_facterversion": "1.7.0", 
+        "facter_filesystems": "ext4,iso9660", 
+        "facter_hardwareisa": "x86_64", 
+        "facter_hardwaremodel": "x86_64", 
+        "facter_hostname": "localhost", 
+        "facter_id": "vagrant", 
+        "facter_interfaces": "eth0,eth1,lo", 
+        "facter_ipaddress": "10.0.2.15", 
+        "facter_ipaddress_eth0": "10.0.2.15", 
+        "facter_ipaddress_eth1": "192.168.33.12", 
+        "facter_ipaddress_lo": "127.0.0.1", 
+        "facter_is_virtual": "true", 
+        "facter_kernel": "Linux", 
+        "facter_kernelmajversion": "2.6", 
+        "facter_kernelrelease": "2.6.32-358.el6.x86_64", 
+        "facter_kernelversion": "2.6.32", 
+        "facter_macaddress": "08:00:27:C9:39:9E", 
+        "facter_macaddress_eth0": "08:00:27:C9:39:9E", 
+        "facter_macaddress_eth1": "08:00:27:D5:DA:B6", 
+        "facter_memoryfree": "366.08 MB", 
+        "facter_memoryfree_mb": "366.08", 
+        "facter_memorysize": "458.64 MB", 
+        "facter_memorysize_mb": "458.64", 
+        "facter_memorytotal": "458.64 MB", 
+        "facter_mtu_eth0": "1500", 
+        "facter_mtu_eth1": "1500", 
+        "facter_mtu_lo": "16436", 
+        "facter_netmask": "255.255.255.0", 
+        "facter_netmask_eth0": "255.255.255.0", 
+        "facter_netmask_eth1": "255.255.255.0", 
+        "facter_netmask_lo": "255.0.0.0", 
+        "facter_network_eth0": "10.0.2.0", 
+        "facter_network_eth1": "192.168.33.0", 
+        "facter_network_lo": "127.0.0.0", 
+        "facter_operatingsystem": "CentOS", 
+        "facter_operatingsystemmajrelease": "6", 
+        "facter_operatingsystemrelease": "6.4", 
+        "facter_osfamily": "RedHat", 
+        "facter_path": "/usr/local/bin:/bin:/usr/bin", 
+        "facter_physicalprocessorcount": 1, 
+        "facter_processor0": "Intel(R) Core(TM) i3-3217U CPU @ 1.80GHz", 
+        "facter_processorcount": "1", 
+        "facter_ps": "ps -ef", 
+        "facter_puppetversion": "3.1.1", 
+        "facter_rubysitedir": "/usr/lib/ruby/site_ruby/1.8", 
+        "facter_rubyversion": "1.8.7", 
+        "facter_selinux": "false", 
+        "facter_sshdsakey": "...", 
+        "facter_sshfp_dsa": "SSHFP 2 1 ...\nSSHFP 2 2 ...", 
+        "facter_sshfp_rsa": "SSHFP 1 1 ...\nSSHFP 1 2 ...", 
+        "facter_sshrsakey": "...", 
+        "facter_swapfree": "2.50 GB", 
+        "facter_swapfree_mb": "2559.99", 
+        "facter_swapsize": "2.50 GB", 
+        "facter_swapsize_mb": "2559.99", 
+        "facter_timezone": "UTC", 
+        "facter_uniqueid": "007f0100", 
+        "facter_uptime": "1:09 hours", 
+        "facter_uptime_days": 0, 
+        "facter_uptime_hours": 1, 
+        "facter_uptime_seconds": 4195, 
+        "facter_virtual": "virtualbox"
+    }, 
+    "changed": false
+}
+</pre></code>
+このようにして収集したデータを task のオプションやテンプレートの変数に使うことができます。
+<ul>
+  <li>IP Address は <code>{{ansible_eth0.ipv4.address}}</code> のようにして使えます
+<pre><code>tasks:
+  - name: gathering data task example
+    command: echo {{ansible_eth0.ipv4.address}}
+</code></pre>
+  </li>
+  <li><code>{{ansible_processor_count * 5}}</code> と計算結果を使うこともできます。CPUのコア数を元にプロセス数を設定したりする場合に使えます。</li>
+  <li>次のようにして task 実行の条件判定にも使えます
+<pre><code>tasks:
+  - name: "shutdown Debian flavored systems"
+    command: /sbin/shutdown -t now
+    when: ansible_os_family == "Debian"
+</code></pre>
+  </li>
+</ul>
+そして、これらのデータが不要な場合は <code>gather_facts: no</code> とすることで収集しないことで playbook の実行時間を短縮できます。
+<pre><code>- hosts: all
+  sudo: yes
+  gather_facts: no
+  roles:
+    - common
+</code></pre>
+</p>
+
+<h3>
+<a name="best-practices" class="anchor" href="#best-practices"><span class="octicon octicon-link"></span></a>7. Best Plactices に沿った構成を真似る</h3>
 <p>
 <a href="http://www.ansibleworks.com/docs/bestpractices.html">Best Practices</a> のディレクトリ構成にならって WordPress サーバーを構築する Playbook を作成します。
 ここは長くなりそうだから詳細は別ページにしよう。<br>
@@ -451,7 +816,7 @@ Please enter MySQL wordpress user password:
 </code></pre>
 
 <h3>
-<a name="best-practices-directory" class="anchor" href="#best-practices-directory"><span class="octicon octicon-link"></span></a>6.1. 各ディレクトリ、ファイルの役割・意味</h3>
+<a name="best-practices-directory" class="anchor" href="#best-practices-directory"><span class="octicon octicon-link"></span></a>7.1. 各ディレクトリ、ファイルの役割・意味</h3>
 <p>
 
 数種類のサービスが Web - App - DB 構成(それぞれは Role)で構築されており、それぞれに2ヶ所のロケーションにあるとする(Multi-AZみたいな)
@@ -483,7 +848,7 @@ Please enter MySQL wordpress user password:
 </p>
 
 <h3>
-<a name="list-variable" class="anchor" href="#list-variable"><span class="octicon octicon-link"></span></a>6.2. リスト変数を使った処理</h3>
+<a name="list-variable" class="anchor" href="#list-variable"><span class="octicon octicon-link"></span></a>7.2. リスト変数を使った処理</h3>
 <p>
 <code>roles/common/tasks/common-packages.yml</code> を見てみましょう。
 <pre><code>- name: be sure common packages are installed
@@ -515,8 +880,9 @@ Please enter MySQL wordpress user password:
 </p>
 
 <h3>
-<a name="mysql" class="anchor" href="#mysql"><span class="octicon octicon-link"></span></a>6.3. MySQL 関連</h3>
+<a name="mysql" class="anchor" href="#mysql"><span class="octicon octicon-link"></span></a>7.3. MySQL 関連</h3>
 <p>
+パッケージのインストールだけでなく、DBの作成、ユーザーの作成も行えます。
 <pre><code># yum で mysql-server パッケージをインストール
 - name: be sure mysql-server is installed
   yum: pkg=mysql-server state=installed
@@ -556,11 +922,11 @@ Please enter MySQL wordpress user password:
 </p>
 
 <h3>
-<a name="test-with-serverspec" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>7. serverspec でテストする</h3>
+<a name="test-with-serverspec" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>8. serverspec でテストする</h3>
 <p>
 </p>
 
-<h3><a name="install-ruby" class="anchor" href="#install-ruby"><span class="octicon octicon-link"></span></a>7.1. Ruby のインストール</h3>
+<h3><a name="install-ruby" class="anchor" href="#install-ruby"><span class="octicon octicon-link"></span></a>8.1. Ruby のインストール</h3>
 <p>
 CentOS 6 はいまだに 1.8.7 だから最新のバージョンを /opt/ruby-2.0.0 にインストール<br>
 <br>
@@ -577,12 +943,12 @@ Tea Time...<br>
 Ruby や Perl のコンパイルには結構時間がかかりますねぇ。
 </p>
 
-<h3><a name="install-serverspec" class="anchor" href="#install-serverspec"><span class="octicon octicon-link"></span></a>7.2. ServerSpec のインストール</h3>
+<h3><a name="install-serverspec" class="anchor" href="#install-serverspec"><span class="octicon octicon-link"></span></a>8.2. ServerSpec のインストール</h3>
 <pre><code>$ <span class="console-input">sudo /opt/ruby-2.0.0/bin/gem install serverspec</span></code></pre>
 あ、bundler 使ったほうが良かったかな？
 
 
-<h3><a name="execute-serverspec" class="anchor" href="#execute-serverspec"><span class="octicon octicon-link"></span></a>7.3. ServerSpec を実行してみる</h3>
+<h3><a name="execute-serverspec" class="anchor" href="#execute-serverspec"><span class="octicon octicon-link"></span></a>8.3. ServerSpec を実行してみる</h3>
 
 まずは <code>serverspec-init</code> コマンドで土台を作ります。
 
@@ -639,7 +1005,7 @@ Finished in 0.62573 seconds
 </ul>
 </p>
 
-<h3><a name="test-mysqld" class="anchor" href="#test-mysqld"><span class="octicon octicon-link"></span></a>7.4. mysqld のテストを作成</h3>
+<h3><a name="test-mysqld" class="anchor" href="#test-mysqld"><span class="octicon octicon-link"></span></a>8.4. mysqld のテストを作成</h3>
 <p>
 <code>httpd_spec.rb</code> を参考に mysqld のテストを作成しましょう。<br>
 これは JTF <del>のパクリですね</del> とまったく同じ課題ですね。
@@ -655,7 +1021,7 @@ Finished in 0.62573 seconds
 (例はこちら: <a href="https://gist.github.com/yteraoka/6156753">https://gist.github.com/yteraoka/6156753</a>)
 </p>
 
-<h3><a name="test-wordpress" class="anchor" href="#test-wordpress"><span class="octicon octicon-link"></span></a>7.5. WordPress のテストを作成</h3>
+<h3><a name="test-wordpress" class="anchor" href="#test-wordpress"><span class="octicon octicon-link"></span></a>8.5. WordPress のテストを作成</h3>
 <p>
 Chef 版との違いが出ましたよ。WordPress が日本語版だったので出力されるHTMLが日本語です。
 http://localhost/wp-admin/install.php にアクセスすると出力されるメッセージ(HTML)に「<strong>5分でできる WordPress の有名なインストールプロセスへようこそ</strong>」が含まれることをチェックしましょう。<br>
@@ -665,7 +1031,7 @@ http://localhost/wp-admin/install.php にアクセスすると出力されるメ
 </p>
 
 
-<h3><a name="more" class="anchor" href="#more"><span class="octicon octicon-link"></span></a>8. もっと知る</h3>
+<h3><a name="more" class="anchor" href="#more"><span class="octicon octicon-link"></span></a>9. もっと知る</h3>
 <p>
 <a href="ansible-in-detail.html">ansible-in-detail.html</a> にモジュールの説明や細かいことを書いています。
 </p>
