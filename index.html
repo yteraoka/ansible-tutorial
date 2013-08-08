@@ -1026,8 +1026,11 @@ Finished in 0.62573 seconds
 Chef 版との違いが出ましたよ。WordPress が日本語版だったので出力されるHTMLが日本語です。
 http://localhost/wp-admin/install.php にアクセスすると出力されるメッセージ(HTML)に「<strong>5分でできる WordPress の有名なインストールプロセスへようこそ</strong>」が含まれることをチェックしましょう。<br>
 <br>
-あぁぁ、ServerSpec の command 出力を日本語でマッチさせる方法がわからん...<br>
-誰か教えてくださいまし。
+<del>あぁぁ、ServerSpec の command 出力を日本語でマッチさせる方法がわからん...<br>
+誰か教えてくださいまし。</del>ただ、日本語文字列のコピペをミスっていただけでした...
+<pre><code>$ vi spec/192.168.33.12/wordpress_spec.rb</code></pre>
+
+(例はこちら: <a href="https://gist.github.com/yteraoka/6186278">https://gist.github.com/yteraoka/6186278</a>)
 </p>
 
 
