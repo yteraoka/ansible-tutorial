@@ -756,7 +756,10 @@ PLAY RECAP ********************************************************************
 <br>
 こんなディレクトリ構成で進めます。<a href="https://github.com/yteraoka/ansible-tutorial/tree/playbook">playbook branch</a> のファイルで一応動作すると思います。随時改善していきます。
 
-このファイルは <a href="https://github.com/yteraoka/ansible-tutorial/archive/playbook.zip">https://github.com/yteraoka/ansible-tutorial/archive/playbook.zip</a> からダウンロードできます。
+このファイルは GitHub <a href="https://github.com/yteraoka/ansible-tutorial.git">https://github.com/yteraoka/ansible-tutorial.git</a> にあります。
+<pre><code>$ <span class="console-input">git clone https://github.com/yteraoka/ansible-tutorial.git</span>
+$ <span class="console-input">cd ansible-tutorial</span>
+$ <span class="console-input">git checkout playbook</span></code></pre>
 
 <pre><code>$ <span class="console-input">tree</span>
 .
@@ -798,7 +801,8 @@ PLAY RECAP ********************************************************************
 
 15 directories, 20 files
 </code></pre>
-
+<code>git clone</code> した repository には空ディレクトリは入ってません。<br>
+<br>
 タスクの一覧を確認するには次のように <code>--list-tasks</code> オプションをつけて <code>ansible-playboook</code> コマンドを実行します。
 <pre><code>$ <span class="console-input">ansible-playbook --list-tasks site.yml</span>
 
@@ -830,10 +834,11 @@ Please enter MySQL wordpress user password:
     configure wp-config.php
 
 </code></pre>
-(随時更新しているため↑この内容は現在の repository のものとはずれてる場合があります)
+MySQL ユーザーのパスワードは playbook に書かず、実行時に入力するようにしてあるため、<code>Please enter MySQL wordpress user password:</code> と、プロンプトが表示されます。ブランクで Enter を押すと playbook に書いてあるデフォルトのパスワードが使われます。<br>
 <br>
-実際の実行は次のコマンドになります。
+実際の実行は次のコマンドですが
 <pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
+実行前に各ディレクトリ、ファイルの役割を確認しましょう。
 </code></pre>
 
 <h3>
