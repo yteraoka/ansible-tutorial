@@ -222,13 +222,25 @@ vagrant ssh を使うと vagrant ユーザーでログインし、パスワー�
 <a name="test-ansible" class="anchor" href="#test-ansible"><span class="octicon octicon-link"></span></a>4. Ansible の疎通確認</h3>
 
 <p>
+ping モジュールで疎通確認してみます
+
 <pre><code>$ <span class="console-input">ansible 192.168.33.12 -m ping</span>
+No hosts matched
+</code></pre>
+
+hosts にマッチしないそうです。Ansible は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>に書かれたホストにしかアクセスしません。yum でインストールした Ansible はデフォルトのインベントリファイルが <code>/etc/ansible/hosts</code> です(<code>/etc/ansible/ansible.cfg</code>で定義されています)が、コマンドラインオプションの <code>-i</code> で指定できます。カレントディレクトリに <code>hosts</code> ファイルを作成しましょう。
+
+<pre><code>$ <span class="console-input">echo 192.168.33.12 > hosts</span></code></pre>
+
+今度は <code>-i</code> で<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>を指定して ping モジュールを実行してみましょう。
+
+<pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -m ping</span>
 <span class="console-green">192.168.33.12 | success &gt;&gt; {
     "changed": false, 
     "ping": "pong"
 }</span></code></pre>
 
-<code>ansible-doc</code> コマンドでモジュールのドキュメントを読むことができます。
+Ansible モジュールのドキュメントは <code>ansible-doc</code> コマンドで読むことができます。
 <pre><code>$ <span class="console-input">ansible-doc ping</span>
 &gt; PING
 
@@ -241,7 +253,9 @@ Example:
 ansible webservers -m ping
 </code></pre>
 
-<pre><code>$ <span class="console-input">ansible 192.168.33.12 -a 'uname -r'</span>
+次にリモートホストで任意のコマンドを実行してます。
+
+<pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -a 'uname -r'</span>
 <span class="console-green">192.168.33.12 | success | rc=0 &gt;&gt;
 2.6.32-358.el6.x86_64</span></code></pre>
 </p>
@@ -250,12 +264,13 @@ ansible webservers -m ping
 <a name="simple-playbook" class="anchor" href="#simple-playbook"><span class="octicon octicon-link"></span></a>5. 簡単な Playbook を書いて試す</h3>
 
 <p>
-まずは<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>を作成する。yum でインストールした Ansible の場合、デフォルトのインベントリファイルは <code>/etc/ansible/hosts</code> となっている。これは <code>/etc/ansible/ansible.cfg</code> で定義されている。別のファイルを使う場合は <code>-i</code> オプションで指定する。
+今度は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>でグループを定義しておきます。
 <pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; hosts</span>
 [test-servers]
 192.168.33.12
 <span class="console-input">_EOD_</span>
 </code></pre>
+次に playbook ファイル(yml)を作成します。
 <pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; simple-playbook.yml</span>
 - hosts: test-servers
   user: vagrant
@@ -308,7 +323,7 @@ playbook: simple-playbook.yml
 </code></pre>
 
 次は dry-run です、<code>--check</code> オプションを指定することで変更は行わないが、実際に実行するとこうなるという出力がされます。
-<pre><code>$ ansible-playbook -i hosts simple-playbook.yml --check
+<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --check</span>
 
 PLAY [test-servers] *********************************************************** 
 
