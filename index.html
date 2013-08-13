@@ -957,44 +957,51 @@ MySQL ユーザーのパスワードは playbook に書かず、実行時に入�
 <h3>
 <a name="test-with-serverspec" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>8. serverspec でテストする</h3>
 <p>
+今実行した playbook がうまく動作したことを確認するために ServerSpec を利用してチェックするようにしてみましょう。
 </p>
 
 <h3><a name="install-ruby" class="anchor" href="#install-ruby"><span class="octicon octicon-link"></span></a>8.1. Ruby のインストール</h3>
 <p>
-CentOS 6 はいまだに 1.8.7 と古いので最新のバージョンを /opt/ruby-2.0.0 にインストール<br>
+ServerSpec は Ruby 製ですので、まずは Ruby のインストールですが、
+CentOS 6 はいまだに 1.8.7 と古いので最新のバージョンを ruby-build を使って /opt/ruby-2.0.0 にインストールします。<br>
 <br>
-まずは Ruby のコンパイルに必要なものをインストール
+Ruby のコンパイルに必要なものをインストール
 <pre><code>$ <span class="console-input">sudo yum -y install git gcc gcc-c++ make patch readline-devel zlib-devel libyaml-devel</span></code></pre>
 
 ruby-build を git clone する
-<pre><code>$ <span class="console-input">git clone -q git://github.com/sstephenson/ruby-build.git</span></code></pre>
+<pre><code>$ <span class="console-input">cd</span>
+$ <span class="console-input">git clone -q git://github.com/sstephenson/ruby-build.git</span></code></pre>
 
 2.0.0-p247 をインストール
 <pre><code>$ <span class="console-input">cd ruby-build</span>
 $ <span class="console-input">sudo bin/ruby-build 2.0.0-p247 /opt/ruby-2.0.0</span></code></pre>
-Tea Time...<br>
-Ruby や Perl のコンパイルには結構時間がかかりますねぇ。
+Ruby や Perl のコンパイルには結構時間がかかりますねぇ。<br>
+お茶でも飲んで待ちましょう。
 </p>
 
 <h3><a name="install-serverspec" class="anchor" href="#install-serverspec"><span class="octicon octicon-link"></span></a>8.2. ServerSpec のインストール</h3>
+<p>
+Ruby のインストールが終わったら ServerSpec を gem でインストールします。
 <pre><code>$ <span class="console-input">sudo /opt/ruby-2.0.0/bin/gem install serverspec</span></code></pre>
 あ、bundler 使ったほうが良かったかな？
-
+</p>
 
 <h3><a name="execute-serverspec" class="anchor" href="#execute-serverspec"><span class="octicon octicon-link"></span></a>8.3. ServerSpec を実行してみる</h3>
 
 まずは <code>serverspec-init</code> コマンドで土台を作ります。
 
-<pre><code>$ <span class="console-input">/opt/ruby-2.0.0/bin/serverspec-init</span>
+<pre><code>$ <span class="console-input">mkdir ~/serverspec</span>
+$ <span class="console-input">cd ~/serverspec</span>
+$ <span class="console-input">/opt/ruby-2.0.0/bin/serverspec-init</span>
 Select a backend type:
 
   1) SSH
   2) Exec (local)
 
-Select number: 1
+Select number: <span class="console-input">1</span>
 
-Vagrant instance y/n: n
-Input target host name: 192.168.33.12
+Vagrant instance y/n: <span class="console-input">n</span>
+Input target host name: <span class="console-input">192.168.33.12</span>
  + spec/
  + spec/192.168.33.12/
  + spec/192.168.33.12/httpd_spec.rb
@@ -1051,16 +1058,26 @@ Finished in 0.62573 seconds
 
 <pre><code>$ vi spec/192.168.33.12/mysqld_spec.rb</code></pre>
 
-(例はこちら: <a href="https://gist.github.com/yteraoka/6156753">https://gist.github.com/yteraoka/6156753</a>)
+(例はこちら: <a href="https://gist.github.com/yteraoka/6156753">https://gist.github.com/yteraoka/6156753</a>)<br>
+<br> 
+作成したら再度 <code>rake spec</code> コマンドを実行します。
+<pre><code>$ <span class="console-input">/opt/ruby-2.0.0/bin/rake spec</span>
+/opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb spec/192.168.33.12/mysqld_spec.rb
+..........
+
+Finished in 0.79427 seconds
+10 examples, 0 failures</code></pre>
+failures が 0 でない場合は 0 になるまでチャンレンジしましょう。
 </p>
 
 <h3><a name="test-wordpress" class="anchor" href="#test-wordpress"><span class="octicon octicon-link"></span></a>8.5. WordPress のテストを作成</h3>
 <p>
-Chef 版との違いが出ましたよ。WordPress が日本語版だったので出力されるHTMLが日本語です。
+Chef 版との違いが出ました。WordPress が日本語版だったので出力されるHTMLが日本語です。。。<br>
 http://localhost/wp-admin/install.php にアクセスすると出力されるメッセージ(HTML)に「<strong>5分でできる WordPress の有名なインストールプロセスへようこそ</strong>」が含まれることをチェックしましょう。<br>
 <br>
 <del>あぁぁ、ServerSpec の command 出力を日本語でマッチさせる方法がわからん...<br>
-誰か教えてくださいまし。</del>ただ、日本語文字列のコピペをミスっていただけでした...
+誰か教えてくださいまし。</del><del>ただ、日本語文字列のコピペをミスっていただけでした...</del>
+これも違ってて試行錯誤してるうちに動くようになっていたようだ。再チャレンジして <code># coding: ascii-8bit</code> という解を得た。
 <pre><code>$ vi spec/192.168.33.12/wordpress_spec.rb</code></pre>
 
 (例はこちら: <a href="https://gist.github.com/yteraoka/6186278">https://gist.github.com/yteraoka/6186278</a>)
