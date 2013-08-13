@@ -235,11 +235,17 @@ hosts にマッチしないそうです。Ansible は<a href="ansible-in-detail.
 今度は <code>-i</code> で<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>を指定して ping モジュールを実行してみましょう。
 
 <pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -m ping</span>
+paramiko: The authenticity of host '192.168.33.12' can't be established. 
+The ssh-rsa key fingerprint is f03f045136b591c7fa475a49bcfdfe40. 
+Are you sure you want to continue connecting (yes/no)?
+yes
 <span class="console-green">192.168.33.12 | success &gt;&gt; {
     "changed": false, 
     "ping": "pong"
 }</span></code></pre>
 
+最近のバージョンで ssh の host key をチェックするようになりました。<br>
+<br>
 Ansible モジュールのドキュメントは <code>ansible-doc</code> コマンドで読むことができます。
 <pre><code>$ <span class="console-input">ansible-doc ping</span>
 &gt; PING
