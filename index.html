@@ -79,17 +79,17 @@ blockquote {
 
           <h3><a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>概要</h3>
 
-<p><a href="http://www.techfesta.jp/">July Tech Festa</a> にて開催されたハンズオンの<a href="http://tily.github.io/jtf2013/">資料が公開</a>されていたことに刺激され、Chef の代わりに Ansible を使う資料を作り<del>ました</del>始めました。
+<p><a href="http://www.techfesta.jp/">July Tech Festa</a> にて開催されたハンズオンの<a href="http://tily.github.io/jtf2013/">資料が公開</a>されていたことに刺激され、Chef の代わりに Ansible を使う資料を作りました。
 Ansible を使って WordPress サーバーのセットアップを行います。<br>
 まだ Ansible を試し始めたばかりで自分の勉強がてら書いています。<br>
 Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみようかと。
 </p>
 <p>
-※鋭意作成中です。<br>
-そのため Github にある playbook を実行した結果と必ずしも同じでは無いことがあります。<br>
-<a href="https://github.com/yteraoka/ansible-tutorial/">https://github.com/yteraoka/ansible-tutorial/</a> コメントなどお待ちしております。<a href="https://twitter.com/yteraoka">@yteraoka</a><br>
+2013年08月13日 <strong>一段落。</strong><br>
+コピペで動かないところを全体的に修正しました。<br>
+今後は <a href="ansible-in-detail.html">詳細ページ</a> を充実させていきます。<br>
 <br>
-少しずつ更新してます、また来てね。
+<a href="https://github.com/yteraoka/ansible-tutorial/">https://github.com/yteraoka/ansible-tutorial/</a> コメントなどお待ちしております。<a href="https://twitter.com/yteraoka">@yteraoka</a><br>
 </p>
 
 
@@ -1075,9 +1075,6 @@ failures が 0 でない場合は 0 になるまでチャンレンジしまし�
 Chef 版との違いが出ました。WordPress が日本語版だったので出力されるHTMLが日本語です。。。<br>
 http://localhost/wp-admin/install.php にアクセスすると出力されるメッセージ(HTML)に「<strong>5分でできる WordPress の有名なインストールプロセスへようこそ</strong>」が含まれることをチェックしましょう。<br>
 <br>
-<del>あぁぁ、ServerSpec の command 出力を日本語でマッチさせる方法がわからん...<br>
-誰か教えてくださいまし。</del><del>ただ、日本語文字列のコピペをミスっていただけでした...</del>
-これも違ってて試行錯誤してるうちに動くようになっていたようだ。再チャレンジして <code># coding: ascii-8bit</code> という解を得た。
 <pre><code>$ vi spec/192.168.33.12/wordpress_spec.rb</code></pre>
 
 (例はこちら: <a href="https://gist.github.com/yteraoka/6186278">https://gist.github.com/yteraoka/6186278</a>)
