@@ -112,6 +112,7 @@ table.module-option td.comments {
     </ul>
   </li>
   <li><a href="#backup-file">Backup File</a></li>
+  <li><a href="#module-ignore_errors">エラーを無視する</a></li>
   <li><a href="#advanced-playbook">Advanced Playbook</a></li>
 <!--
   <li><a href="#"></a></li>
@@ -936,6 +937,8 @@ Action? (a)bort/(c)ontinue:
 
 </p>
 
+
+
 <h3><a name="backup-file" class="anchor" href="#backup-file"><span class="octicon octicon-link"></span></a>Backup File</h3>
 <p>
 <a href="#module-copy"><code>copy</code></a>, <a href="#module-lineinfile"><code>lineinfile</code></a> などに <code>backup</code> オプションがある。これは更新対象のファイル(path)に日時(%Y-%m-%d@%H:%M~)サフィックスをつけてバックアップとして保存します。変更の必要がない場合はバックアップファイルも作成されません。<br>
@@ -956,6 +959,14 @@ Action? (a)bort/(c)ontinue:
 
 分の精度の日時だけでのバックアップファイル名を生成するため、一度の playbook 適用内で同一ファイルを複数回更新する処理を行なっても最後の変更分しか残らないので注意が必要。たまたまtaskの間に分が変われば複数ファイルが残ります。
 ファイルのコピーには <code>shutil.copy2</code> が使われているのでメタデータもすべてコピーされます。
+</p>
+
+
+<h3><a name="ignore_errors" class="anchor" href="#ignore_errors"><span class="octicon octicon-link"></span></a>エラーを無視する</h3>
+<p>
+通常、task でエラーが発生するとそのホストに対してはそれ以降の処理を行いませんが、エラーになっても処理を続けたい場合にはその task に
+<pre><code>ignore_errors: yes</code></pre>
+を設定することで実現できます。
 </p>
 
 <h3><a name="advanced-playbook" class="anchor" href="#advanced-playbook"><span class="octicon octicon-link"></span></a>Advanced Playbook</h3>
