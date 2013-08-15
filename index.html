@@ -724,7 +724,7 @@ PLAY RECAP ********************************************************************
 </pre></code>
 このようにして収集したデータを task のオプションやテンプレートの変数に使うことができます。
 <ul>
-  <li>IP Address は <code>{{ansible_eth0.ipv4.address}}</code> のようにして使えます
+  <li>IP Address は <code>{{ansible_eth0.ipv4.address}}</code> のようにして使えます。 <code>{{ansible_eth0["ipv4"]["address"]}}</code> でもいけますね。こっちが正式？
 <pre><code>tasks:
   - name: gathering data task example
     command: echo {{ansible_eth0.ipv4.address}}
