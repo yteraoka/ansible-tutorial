@@ -967,7 +967,7 @@ task の出力をリストにして <code>with_items</code> で扱うことも�
         # with_items: home_dirs.stdout.split()
 </code></pre>
 
-<code>register</code> で登録されるデータは <code>debug</code> モジュールを使うことで確認できます。
+<code>register</code> で登録されるデータは <code>debug</code> モジュールを使うことで確認できます。<code>debug</code> モジュールの出力を有効にするには <code>-v</code> オプションをつけて実行する必要があります。
 
 <pre><code>      - debug: msg="{{motd_contents}}"</code></pre>
 
@@ -1009,7 +1009,7 @@ u'changed': False,
 'stdout_lines': [u'skipped, since /etc/motd exists']
 </code></pre>
 
-もっと手軽に確認したい場合は <code>ansible-playbook</code> に <code>-v</code> をつけて実行することでもだいたい確認することができます。
+もっと手軽に確認したい場合は <code>debug</code> モジュールなしに <code>-v</code> をつけて実行することでもだいたい確認することができます。
 
 <pre><code>TASK: [shell cat /etc/motd] *************************************************** 
 <span class="console-yellow">changed: [192.168.33.12] =&gt; {"changed": true, "cmd": "cat /etc/motd ", "delta": "0:00:00.005462", "end": "2013-08-18 13:27:43.277139", "rc": 0, "start": "2013-08-18 13:27:43.271677", "stderr": "", "stdout": "Welcome to your Vagrant-built virtual machine."}</span></code></pre>
