@@ -1367,6 +1367,11 @@ task に when で条件を指定し、それを満たす場合にのみ実行さ
     when: ansible_os_family == "Debian"
 </code></pre>
 
+<pre><code>tasks:
+  - shell: echo "only on Red Hat 6, derivatives, and later"
+    when: ansible_os_family == "RedHat" and ansible_lsb.major_release|int &gt;= 6
+</pre></code>
+
 <br>
 
 また、ある <a href="#register-variables">task の結果を変数に入れて</a>おき、その値を使って条件を指定することができます。
