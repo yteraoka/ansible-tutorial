@@ -111,6 +111,9 @@ table.module-option td.comments {
       <li><a href="#module-pause">pause</a> (一時停止)</li>
     </ul>
   </li>
+  <li><a href="#register-variables">結果を変数に保存して利用する</a></li>
+  <li><a href="#gathering-facts">サーバーの情報を利用する (GATHERING FACTS)</a></li>
+  <li><a href="#conditional-execution">条件付き実行</a></li>
   <li><a href="#backup-file">Backup File</a></li>
   <li><a href="#module-ignore_errors">エラーを無視する</a></li>
   <li><a href="#advanced-playbook">Advanced Playbook</a></li>
@@ -934,7 +937,452 @@ Action? (a)bort/(c)ontinue:
 # 更新後の確認事項のリマインダーとして役に立つ
 - pause: prompt="Make sure org.foo.FooOverload exception is not present"
 </code></pre>
+</p>
 
+
+
+<h3><a name="register-variables" class="anchor" href="#register-variables"><span class="octicon octicon-link"></span></a>結果を変数に保存して利用する</h3>
+<p>
+<code>register</code> を使って task の結果、出力を変数に登録し、後の task でその値を利用することができます。
+<pre><code>- name: test play
+  hosts: all
+  tasks:
+      - shell: cat /etc/motd
+        register: motd_contents
+      - shell: echo "motd contains the word hi"
+        when: motd_contents.stdout.find('hi') != -1
+</code></pre>
+<code>cat /etc/motd</code> の結果が motd_contents に登録されます。上の例では /etc/motd に "hi" が含まれなかった場合にのみ2つ目の task が実行されます。<br>
+<br>
+task の出力をリストにして <code>with_items</code> で扱うことも可能です。行を単位にするなら stdout_lines が使えます。 stdout.split() で任意のデリミタでリストに分割することもできます。
+<pre><code>- name: registered variable usage as a with_items list
+  hosts: all
+  tasks:
+      - name: retrieve the list of home directories
+        command: ls /home
+        register: home_dirs
+      - name: add home dirs to the backup spooler
+        file: path=/mnt/bkspool/{{ item }} src=/home/{{ item }} state=link
+        with_items: home_dirs.stdout_lines
+        # with_items: home_dirs.stdout.split()
+</code></pre>
+
+<code>register</code> で登録されるデータは <code>debug</code> モジュールを使うことで確認できます。
+
+<pre><code>      - debug: msg="{{motd_contents}}"</code></pre>
+
+これを実行すると次のように表示されます。
+
+<pre><code>TASK: [debug msg="{{motd_contents}}"] ***************************************** 
+<span class="console-green">ok: [192.168.33.12] =&gt; {"msg": "{u'changed': True, u'end': u'2013-08-18 15:12:18.808685', u'stdout': u'Welcome to your Vagrant-built virtual machine.', u'cmd': u'cat /etc/motd ', u'start': u'2013-08-18 15:12:18.803476', u'delta': u'0:00:00.005209', u'stderr': u'', u'rc': 0, 'invocation': {'module_name': 'shell', 'module_args': 'cat /etc/motd'}, 'stdout_lines': [u'Welcome to your Vagrant-built virtual machine.']}"}</span></code></pre>
+
+長いので整形してみます。
+
+<pre><code>u'changed': True,
+u'end': u'2013-08-18 15:12:18.808685',
+u'stdout': u'Welcome to your Vagrant-built virtual machine.',
+u'cmd': u'cat /etc/motd ',
+u'start': u'2013-08-18 15:12:18.803476',
+u'delta': u'0:00:00.005209',
+u'stderr': u'',
+u'rc': 0,
+'invocation': {
+  'module_name': 'shell',
+  'module_args': 'cat /etc/motd'
+},
+'stdout_lines': [u'Welcome to your Vagrant-built virtual machine.']
+</code></pre>
+
+skip した場合
+
+<pre><code>
+u'skipped': True,
+u'stdout': u'skipped, since /etc/motd exists',
+u'cmd': u'cat /etc/motd ',
+u'rc': 0,
+u'stderr': False,
+u'changed': False,
+'invocation': {
+  'module_name': 'shell',
+  'module_args': 'cat /etc/motd creates=/etc/motd'
+},
+'stdout_lines': [u'skipped, since /etc/motd exists']
+</code></pre>
+
+もっと手軽に確認したい場合は <code>ansible-playbook</code> に <code>-v</code> をつけて実行することでもだいたい確認することができます。
+
+<pre><code>TASK: [shell cat /etc/motd] *************************************************** 
+<span class="console-yellow">changed: [192.168.33.12] =&gt; {"changed": true, "cmd": "cat /etc/motd ", "delta": "0:00:00.005462", "end": "2013-08-18 13:27:43.277139", "rc": 0, "start": "2013-08-18 13:27:43.271677", "stderr": "", "stdout": "Welcome to your Vagrant-built virtual machine."}</span></code></pre>
+これも長いので整形してみましょう。
+<pre><code>{
+  "changed": true,
+  "cmd": "cat /etc/motd ",
+  "delta": "0:00:00.005462",
+  "end": "2013-08-18 13:27:43.277139",
+  "rc": 0,
+  "start": "2013-08-18 13:27:43.271677",
+  "stderr": "",
+  "stdout": "Welcome to your Vagrant-built virtual machine."
+}
+</code></pre>
+skip した場合は次のような文字列が stdout に入っていました。
+<pre><code>skipped, since /etc/motd exists</code></pre>
+そして、実は <code>debug</code> モジュールを使えば中身が見れるのでした。
+</p>
+
+
+
+<h3><a name="gathering-facts" class="anchor" href="#gathering-facts"><span class="octicon octicon-link"></span></a>サーバーの情報を利用する (GATHERING FACTS)</h3>
+<p>
+playbook を実行するとまずサーバの情報を収集します。
+実行時に <code>GATHERING FACTS</code> を表示されている部分です。次のような情報が収集され、これを task の中で利用することができます。
+<pre style="height: 300px;"><code>$ <span class="console-input">ansible -m setup -i hosts 192.168.33.12</span>
+192.168.33.12 | success &gt;&gt; {
+    "ansible_facts": {
+        "ansible_all_ipv4_addresses": [
+            "10.0.2.15", 
+            "192.168.33.12"
+        ], 
+        "ansible_all_ipv6_addresses": [
+            "fe80::a00:27ff:fec9:399e", 
+            "fe80::a00:27ff:fed5:dab6"
+        ], 
+        "ansible_architecture": "x86_64", 
+        "ansible_bios_date": "12/01/2006", 
+        "ansible_bios_version": "VirtualBox", 
+        "ansible_cmdline": {
+            "KEYBOARDTYPE": "pc", 
+            "KEYTABLE": "us", 
+            "LANG": "en_US.UTF-8", 
+            "SYSFONT": "latarcyrheb-sun16", 
+            "quiet": true, 
+            "rd_LVM_LV": "VolGroup/lv_root", 
+            "rd_NO_DM": true, 
+            "rd_NO_LUKS": true, 
+            "rd_NO_MD": true, 
+            "rhgb": true, 
+            "ro": true, 
+            "root": "/dev/mapper/VolGroup-lv_root"
+        }, 
+        "ansible_date_time": {
+            "date": "2013-08-08", 
+            "day": "08", 
+            "epoch": "1375968652", 
+            "hour": "13", 
+            "iso8601": "2013-08-08T13:30:52Z", 
+            "iso8601_micro": "2013-08-08T13:30:52.873665Z", 
+            "minute": "30", 
+            "month": "08", 
+            "second": "52", 
+            "time": "13:30:52", 
+            "tz": "UTC", 
+            "year": "2013"
+        }, 
+        "ansible_default_ipv4": {
+            "address": "10.0.2.15", 
+            "alias": "eth0", 
+            "gateway": "10.0.2.2", 
+            "interface": "eth0", 
+            "macaddress": "08:00:27:c9:39:9e", 
+            "mtu": 1500, 
+            "netmask": "255.255.255.0", 
+            "network": "10.0.2.0", 
+            "type": "ether"
+        }, 
+        "ansible_default_ipv6": {}, 
+        "ansible_devices": {
+            "sda": {
+                "holders": [], 
+                "host": "SATA controller: Intel Corporation 82801HM/HEM (ICH8M/ICH8M-E) SATA Controller [AHCI mode] (rev 02)", 
+                "model": "VBOX HARDDISK", 
+                "partitions": {
+                    "sda1": {
+                        "sectors": "1024000", 
+                        "sectorsize": 512, 
+                        "size": "500.00 MB", 
+                        "start": "2048"
+                    }, 
+                    "sda2": {
+                        "sectors": "1047549952", 
+                        "sectorsize": 512, 
+                        "size": "499.51 GB", 
+                        "start": "1026048"
+                    }
+                }, 
+                "removable": "0", 
+                "rotational": "1", 
+                "scheduler_mode": "cfq", 
+                "sectors": "1048576000", 
+                "sectorsize": "512", 
+                "size": "500.00 GB", 
+                "support_discard": "0", 
+                "vendor": "ATA"
+            }, 
+            "sr0": {
+                "holders": [], 
+                "host": "IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)", 
+                "model": "CD-ROM", 
+                "partitions": {}, 
+                "removable": "1", 
+                "rotational": "1", 
+                "scheduler_mode": "cfq", 
+                "sectors": "2097151", 
+                "sectorsize": "512", 
+                "size": "1024.00 MB", 
+                "support_discard": "0", 
+                "vendor": "VBOX"
+            }, 
+            "sr1": {
+                "holders": [], 
+                "host": "IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)", 
+                "model": "CD-ROM", 
+                "partitions": {}, 
+                "removable": "1", 
+                "rotational": "1", 
+                "scheduler_mode": "cfq", 
+                "sectors": "2097151", 
+                "sectorsize": "512", 
+                "size": "1024.00 MB", 
+                "support_discard": "0", 
+                "vendor": "VBOX"
+            }
+        }, 
+        "ansible_distribution": "CentOS", 
+        "ansible_distribution_release": "Final", 
+        "ansible_distribution_version": "6.4", 
+        "ansible_domain": "localdomain", 
+        "ansible_eth0": {
+            "active": true, 
+            "device": "eth0", 
+            "ipv4": {
+                "address": "10.0.2.15", 
+                "netmask": "255.255.255.0", 
+                "network": "10.0.2.0"
+            }, 
+            "ipv6": [
+                {
+                    "address": "fe80::a00:27ff:fec9:399e", 
+                    "prefix": "64", 
+                    "scope": "link"
+                }
+            ], 
+            "macaddress": "08:00:27:c9:39:9e", 
+            "module": "e1000", 
+            "mtu": 1500, 
+            "type": "ether"
+        }, 
+        "ansible_eth1": {
+            "active": true, 
+            "device": "eth1", 
+            "ipv4": {
+                "address": "192.168.33.12", 
+                "netmask": "255.255.255.0", 
+                "network": "192.168.33.0"
+            }, 
+            "ipv6": [
+                {
+                    "address": "fe80::a00:27ff:fed5:dab6", 
+                    "prefix": "64", 
+                    "scope": "link"
+                }
+            ], 
+            "macaddress": "08:00:27:d5:da:b6", 
+            "module": "e1000", 
+            "mtu": 1500, 
+            "type": "ether"
+        }, 
+        "ansible_form_factor": "Other", 
+        "ansible_fqdn": "localhost.localdomain", 
+        "ansible_hostname": "localhost", 
+        "ansible_interfaces": [
+            "lo", 
+            "eth1", 
+            "eth0"
+        ], 
+        "ansible_kernel": "2.6.32-358.el6.x86_64", 
+        "ansible_lo": {
+            "active": true, 
+            "device": "lo", 
+            "ipv4": {
+                "address": "127.0.0.1", 
+                "netmask": "255.0.0.0", 
+                "network": "127.0.0.0"
+            }, 
+            "ipv6": [
+                {
+                    "address": "::1", 
+                    "prefix": "128", 
+                    "scope": "host"
+                }
+            ], 
+            "mtu": 16436, 
+            "type": "loopback"
+        }, 
+        "ansible_machine": "x86_64", 
+        "ansible_memfree_mb": 323, 
+        "ansible_memtotal_mb": 458, 
+        "ansible_mounts": [
+            {
+                "device": "/dev/mapper/VolGroup-lv_root", 
+                "fstype": "ext4", 
+                "mount": "/", 
+                "options": "rw", 
+                "size_available": 497491697664, 
+                "size_total": 525282689024
+            }, 
+            {
+                "device": "/dev/sda1", 
+                "fstype": "ext4", 
+                "mount": "/boot", 
+                "options": "rw", 
+                "size_available": 448802816, 
+                "size_total": 507744256
+            }, 
+            {
+                "device": "/vagrant", 
+                "fstype": "vboxsf", 
+                "mount": "/vagrant", 
+                "options": "uid=501,gid=501,rw", 
+                "size_available": 72607436800, 
+                "size_total": 117461032960
+            }
+        ], 
+        "ansible_os_family": "RedHat", 
+        "ansible_pkg_mgr": "yum", 
+        "ansible_processor": [
+            "Intel(R) Core(TM) i3-3217U CPU @ 1.80GHz"
+        ], 
+        "ansible_processor_cores": "NA", 
+        "ansible_processor_count": 1, 
+        "ansible_product_name": "VirtualBox", 
+        "ansible_product_serial": "NA", 
+        "ansible_product_uuid": "NA", 
+        "ansible_product_version": "1.2", 
+        "ansible_python_version": "2.6.6", 
+        "ansible_selinux": false, 
+        "ansible_ssh_host_key_dsa_public": "...", 
+        "ansible_ssh_host_key_rsa_public": "...", 
+        "ansible_swapfree_mb": 2559, 
+        "ansible_swaptotal_mb": 2559, 
+        "ansible_system": "Linux", 
+        "ansible_system_vendor": "innotek GmbH", 
+        "ansible_user_id": "vagrant", 
+        "ansible_userspace_architecture": "x86_64", 
+        "ansible_userspace_bits": "64", 
+        "ansible_virtualization_role": "guest", 
+        "ansible_virtualization_type": "virtualbox", 
+        "facter_architecture": "x86_64", 
+        "facter_augeasversion": "0.9.0", 
+        "facter_blockdevice_sda_model": "VBOX HARDDISK", 
+        "facter_blockdevice_sda_size": 536870912000, 
+        "facter_blockdevice_sda_vendor": "ATA", 
+        "facter_blockdevice_sr0_model": "CD-ROM", 
+        "facter_blockdevice_sr0_size": 1073741312, 
+        "facter_blockdevice_sr0_vendor": "VBOX", 
+        "facter_blockdevice_sr1_model": "CD-ROM", 
+        "facter_blockdevice_sr1_size": 1073741312, 
+        "facter_blockdevice_sr1_vendor": "VBOX", 
+        "facter_blockdevices": "sda,sr0,sr1", 
+        "facter_facterversion": "1.7.0", 
+        "facter_filesystems": "ext4,iso9660", 
+        "facter_hardwareisa": "x86_64", 
+        "facter_hardwaremodel": "x86_64", 
+        "facter_hostname": "localhost", 
+        "facter_id": "vagrant", 
+        "facter_interfaces": "eth0,eth1,lo", 
+        "facter_ipaddress": "10.0.2.15", 
+        "facter_ipaddress_eth0": "10.0.2.15", 
+        "facter_ipaddress_eth1": "192.168.33.12", 
+        "facter_ipaddress_lo": "127.0.0.1", 
+        "facter_is_virtual": "true", 
+        "facter_kernel": "Linux", 
+        "facter_kernelmajversion": "2.6", 
+        "facter_kernelrelease": "2.6.32-358.el6.x86_64", 
+        "facter_kernelversion": "2.6.32", 
+        "facter_macaddress": "08:00:27:C9:39:9E", 
+        "facter_macaddress_eth0": "08:00:27:C9:39:9E", 
+        "facter_macaddress_eth1": "08:00:27:D5:DA:B6", 
+        "facter_memoryfree": "366.08 MB", 
+        "facter_memoryfree_mb": "366.08", 
+        "facter_memorysize": "458.64 MB", 
+        "facter_memorysize_mb": "458.64", 
+        "facter_memorytotal": "458.64 MB", 
+        "facter_mtu_eth0": "1500", 
+        "facter_mtu_eth1": "1500", 
+        "facter_mtu_lo": "16436", 
+        "facter_netmask": "255.255.255.0", 
+        "facter_netmask_eth0": "255.255.255.0", 
+        "facter_netmask_eth1": "255.255.255.0", 
+        "facter_netmask_lo": "255.0.0.0", 
+        "facter_network_eth0": "10.0.2.0", 
+        "facter_network_eth1": "192.168.33.0", 
+        "facter_network_lo": "127.0.0.0", 
+        "facter_operatingsystem": "CentOS", 
+        "facter_operatingsystemmajrelease": "6", 
+        "facter_operatingsystemrelease": "6.4", 
+        "facter_osfamily": "RedHat", 
+        "facter_path": "/usr/local/bin:/bin:/usr/bin", 
+        "facter_physicalprocessorcount": 1, 
+        "facter_processor0": "Intel(R) Core(TM) i3-3217U CPU @ 1.80GHz", 
+        "facter_processorcount": "1", 
+        "facter_ps": "ps -ef", 
+        "facter_puppetversion": "3.1.1", 
+        "facter_rubysitedir": "/usr/lib/ruby/site_ruby/1.8", 
+        "facter_rubyversion": "1.8.7", 
+        "facter_selinux": "false", 
+        "facter_sshdsakey": "...", 
+        "facter_sshfp_dsa": "SSHFP 2 1 ...\nSSHFP 2 2 ...", 
+        "facter_sshfp_rsa": "SSHFP 1 1 ...\nSSHFP 1 2 ...", 
+        "facter_sshrsakey": "...", 
+        "facter_swapfree": "2.50 GB", 
+        "facter_swapfree_mb": "2559.99", 
+        "facter_swapsize": "2.50 GB", 
+        "facter_swapsize_mb": "2559.99", 
+        "facter_timezone": "UTC", 
+        "facter_uniqueid": "007f0100", 
+        "facter_uptime": "1:09 hours", 
+        "facter_uptime_days": 0, 
+        "facter_uptime_hours": 1, 
+        "facter_uptime_seconds": 4195, 
+        "facter_virtual": "virtualbox"
+    }, 
+    "changed": false
+}
+</pre></code>
+templates で IP address を埋める場合には <code>{{ansible_eth0.ipv4.address}}</code> と書けます。<code>{{ansible_eth0["ipv4"]["address"]}}</code> でも可。<br>
+<code>{{ansible_processor_count * 5}}</code> として計算結果を利用することもできます。次に説明する<a href="#conditional-execution">条件付き実行</a>の条件としても使えます。<br>
+<br>
+この収集処理にはそこそこ時間がかかるため、このデータを利用しない場合は playbook で <code>gather_facts: no</code> と指定することで省略することが可能です。
+</p>
+
+
+
+<h3><a name="conditional-execution" class="anchor" href="#conditional-execution"><span class="octicon octicon-link"></span></a>条件付き実行</h3>
+<p>
+task に when で条件を指定し、それを満たす場合にのみ実行させることができます。<br>
+次の例では Debian でのみコマンドを実行します。この変数 <codoe>ansible_os_family</code> は <a href="#gathering-facts">GATHERING FACTS</a> で得られるものです。
+<pre><code>tasks:
+  - name: "shutdown Debian flavored systems"
+    command: /sbin/shutdown -t now
+    when: ansible_os_family == "Debian"
+</code></pre>
+
+<br>
+
+また、ある <a href="#register-variables">task の結果を変数に入れて</a>おき、その値を使って条件を指定することができます。
+
+<pre><code>tasks:
+  - command: /bin/false
+    register: result
+    ignore_errors: True
+  - command: /bin/something
+    when: result|failed
+  - command: /bin/something_else
+    when: result|success
+</code></pre>
+1番目の task は /bin/false なのでかならず失敗しますが、<code>ignore_errors</code> によってエラーでも続行されます。<code>register</code> で <code>result</code> という変数に task の結果が保存されます(<a href="#register-variables">結果を変数に保存して利用する</a> を参照)。以降の task で <code>when</code> を使ってその結果を条件として利用することができます。2番目の task は1番目が失敗した場合にのみ実行されます。3番目は1番目の task が成功した場合にのみ実行されます。
+<code>register: 任意の名前</code> で結果を保存します。<br>
+(<a href="http://www.ansibleworks.com/docs/playbooks2.html#conditional-execution">Conditional Execution</a>)
 </p>
 
 
@@ -968,6 +1416,41 @@ Action? (a)bort/(c)ontinue:
 <pre><code>ignore_errors: yes</code></pre>
 を設定することで実現できます。
 </p>
+
+
+
+<h3><a name="delegation" class="anchor" href="#delegation"><span class="octicon octicon-link"></span></a>委譲 (task を別のホストで実行する)</h3>
+<p>
+例えば deploy の前にロードバランサーから外し、終わったらまた戻すという処理を行う場合 <code>delegate_to</code> を使ってその task をロードバランサーで実行させることができます。
+<pre><code>- hosts: webservers
+  serial: 5
+  tasks:
+  - name: take out of load balancer pool
+    command: /usr/bin/take_out_of_pool {{ inventory_hostname }}
+    delegate_to: 127.0.0.1
+  - name: actual steps would go here
+    yum: name=acme-web-stack state=latest
+  - name: add back to load balancer pool
+    command: /usr/bin/add_back_to_pool {{ inventory_hostname }}
+    delegate_to: 127.0.0.1
+</code></pre>
+この例ではロードバランサーの処理を 127.0.0.1 で実行します。これは Ansible の実行ホストです。この場合 <code>local_action</code> を使って次のように書くこともできます。
+<pre><code># ...
+  tasks:
+  - name: take out of load balancer pool
+    local_action: command /usr/bin/take_out_of_pool {{ inventory_hostname }}
+# ...
+  - name: add back to load balancer pool
+    local_action: command /usr/bin/add_back_to_pool {{ inventory_hostname }}
+</code></pre>
+<code>local_action</code> を使うことで file モジュールではできないディレクトリごとファイルをコピーする処理を次のように書くこともできます。
+<pre><code># ...
+  tasks:
+  - name: recursively copy files from management server to target
+    local_action: command rsync -a /path/to/files {{ inventory_hostname }}:/path/to/target/
+</code></pre>
+</p>
+
 
 <h3><a name="advanced-playbook" class="anchor" href="#advanced-playbook"><span class="octicon octicon-link"></span></a>Advanced Playbook</h3>
 <p>
