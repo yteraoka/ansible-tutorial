@@ -7,7 +7,7 @@
   tags: mysqld
 
 - name: be sure mysqld is running and enabled
-  service: name=mysqld state=running enabled=yes
+  service: name=mysqld state=started enabled=yes
   tags: mysqld
 
 - name: Create database
