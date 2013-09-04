@@ -1371,7 +1371,15 @@ task に when で条件を指定し、それを満たす場合にのみ実行さ
   - shell: echo "only on Red Hat 6, derivatives, and later"
     when: ansible_os_family == "RedHat" and ansible_lsb.major_release|int &gt;= 6
 </pre></code>
+<br>
+<code>ansible-playbook</code> <code>-e nmae=value</code> で指定した変数によって動作を変えることができます。
+<pre><code># is_hogehoge 変数に何か指定してある場合
+  - command: hogehoge
+    when: is_hogehoge is defined
 
+# branch を指定して deploy
+  - command: deploy-command {{branch}}
+</code></pre>
 <br>
 
 また、ある <a href="#register-variables">task の結果を変数に入れて</a>おき、その値を使って条件を指定することができます。
@@ -1388,6 +1396,15 @@ task に when で条件を指定し、それを満たす場合にのみ実行さ
 1番目の task は /bin/false なのでかならず失敗しますが、<code>ignore_errors</code> によってエラーでも続行されます。<code>register</code> で <code>result</code> という変数に task の結果が保存されます(<a href="#register-variables">結果を変数に保存して利用する</a> を参照)。以降の task で <code>when</code> を使ってその結果を条件として利用することができます。2番目の task は1番目が失敗した場合にのみ実行されます。3番目は1番目の task が成功した場合にのみ実行されます。
 <code>register: 任意の名前</code> で結果を保存します。<br>
 (<a href="http://www.ansibleworks.com/docs/playbooks2.html#conditional-execution">Conditional Execution</a>)
+<br>
+<br>
+次の例は <code>/some/directory</code> が作成された場合にのみ、次の <code>commmand a</code> が実行されます。<code>/some/directory</code> が既に存在していた場合は <code>changed</code> とならないので <code>command a</code> は実行されません。
+<pre><code>  - file: state=directory path=/some/directory
+    register: create_dir
+
+  - command: command a
+    when: create_dir.changed
+</code></pre>
 </p>
 
 
