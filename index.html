@@ -89,6 +89,8 @@ Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみよ�
 コピペで動かないところを全体的に修正しました。<br>
 今後は <a href="ansible-in-detail.html">詳細ページ</a> を充実させていきます。<br>
 <br>
+2013年09月09日 role についての追記しました。<br>
+<br>
 <a href="https://github.com/yteraoka/ansible-tutorial/">https://github.com/yteraoka/ansible-tutorial/</a> コメントなどお待ちしております。<a href="https://twitter.com/yteraoka">@yteraoka</a><br>
 </p>
 
@@ -134,7 +136,11 @@ Ansible は最もシンプルな構成管理、自動化ツールです。
       <li><a href="#test-wordpress">WordPress のテストを作成</a>
     </ol>
   </li>
-  <li><a href="ansible-in-detail.html">もっと知る</a></li>
+  <li><a href="ansible-in-detail.html">もっと知る</a>
+    <ol>
+      <li><a href="#more2">2013/9/9 追記 (role について)</a></li>
+    </ol>
+  </li>
 </ol>
 </p>
 
@@ -1084,6 +1090,34 @@ http://localhost/wp-admin/install.php にアクセスすると出力されるメ
 <h3><a name="more" class="anchor" href="#more"><span class="octicon octicon-link"></span></a>9. もっと知る</h3>
 <p>
 <a href="ansible-in-detail.html">ansible-in-detail.html</a> にモジュールの説明や細かいことを書いています。
+</p>
+
+<h3><a name="more2" class="anchor" href="#more2"><span class="octicon octicon-link"></span></a>9.1. 2013/9/9 追記</h3>
+<p>
+この tutorial では <code>role</code> として <code>common</code>, <code>wordpress</code> という分け方をしましたが、その後、<a href="http://www.ansibleworks.com/ansibleworks-awx/">Ansible AWX</a> のインストーラーなどを見ると <code>nginx</code>, <code>mysql</code> などを <code>role</code> にするのが良さそうです。その上で site.yml を次のようにするのが良いようです。
+<pre><code>- hosts: all
+  sudo: yes
+  roles:
+    - { role: sshd }
+    - { role: ntpd }
+    - { role: epel }
+
+- hosts: webservers
+  sudo: yes
+  roles:
+    - { role: nginx, name: 'value' }
+    - ...
+
+- hosts: dbservers
+  sudo: yes
+  roles:
+    - { role: mysql, name: 'value' }
+    - ...
+</code></pre>
+
+「role A は role B に依存しているよ」なんていう書き方もできるようです。<br>
+<a href="http://qiita.com/hnakamur/items/63f2d94badf89246e04a">Ansibleのroleを使いこなす</a> [Qiita]
+
 </p>
 
         </section>
