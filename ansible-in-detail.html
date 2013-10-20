@@ -113,6 +113,7 @@ table.module-option td.comments {
   </li>
   <li><a href="#register-variables">結果を変数に保存して利用する</a></li>
   <li><a href="#gathering-facts">サーバーの情報を利用する (GATHERING FACTS)</a></li>
+  <li><a href="#collect-facts">サーバーの情報(fact)を集める</a></li>
   <li><a href="#conditional-execution">条件付き実行</a></li>
   <li><a href="#backup-file">Backup File</a></li>
   <li><a href="#module-ignore_errors">エラーを無視する</a></li>
@@ -1355,6 +1356,13 @@ templates で IP address を埋める場合には <code>{{ansible_eth0.ipv4.addr
 この収集処理にはそこそこ時間がかかるため、このデータを利用しない場合は playbook で <code>gather_facts: no</code> と指定することで省略することが可能です。
 </p>
 
+
+<h3><a name="collect-facts" class="anchor" href="#collect-facts"><span class="octicon octicon-link"></span></a>サーバーの情報(fact)を集める</h3>
+<p>
+<a href="#gathering-facts">サーバーの情報を利用する (GATHERING FACTS)</a> で得られる情報は全サーバーから収集できると便利ですよね。ansible コマンドで簡単に収集することができます。
+<pre><code>$ ansible -s -m setup -i hosts -t /tmp/facts all</code></pre>
+このコマンドで /tmp/facts フォルダにホスト毎のファイルとして結果が出力されます。ただし、一つ残念なことに JSON の前に "<code>localhost | success &gt;&gt; </code>" っていう文字列が入るので、それぞれのファイルが純粋な JSON ではありません。<code>-s</code> は sudo を使うというオプションで、これは無しでも実行できますが、root でないと取得できない情報もあるので指定します。
+</p>
 
 
 <h3><a name="conditional-execution" class="anchor" href="#conditional-execution"><span class="octicon octicon-link"></span></a>条件付き実行</h3>
