@@ -1,3 +1,4 @@
+---
 - hosts: wordpress
   sudo: yes
   roles:

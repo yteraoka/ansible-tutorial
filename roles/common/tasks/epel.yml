@@ -1,3 +1,4 @@
+---
 - name: be sure epel repository is installed
   command: /bin/rpm -ivh http://ftp-srv2.kddilabs.jp/Linux/distributions/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm creates=/etc/yum.repos.d/epel.repo
   notify:

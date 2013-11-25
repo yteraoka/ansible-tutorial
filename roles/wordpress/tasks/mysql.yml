@@ -1,3 +1,4 @@
+---
 - name: be sure mysql-server is installed
   yum: pkg=mysql-server state=installed
   tags: mysqld

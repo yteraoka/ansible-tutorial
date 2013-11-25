@@ -1,3 +1,4 @@
+---
 - name: copy wordpress zip file
   copy: src=wordpress-${wordpress-version}.zip dest=/var/tmp/wordpress-${wordpress-version}.zip
   tags: wordpress

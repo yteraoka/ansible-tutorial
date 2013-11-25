@@ -1,3 +1,4 @@
+---
 - name: be sure common packages are installed
   yum: name={{item}} state=installed
   with_items:

@@ -1,3 +1,4 @@
+---
 - name: be sure php is installed
   yum: pkg=php state=installed
   notify:

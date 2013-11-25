@@ -1,3 +1,4 @@
+---
 - name: be sure httpd is installed
   yum: pkg=httpd state=installed
   tags: httpd
