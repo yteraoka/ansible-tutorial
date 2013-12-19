@@ -2,7 +2,7 @@
 - name: be sure common packages are installed
   yum: name={{item}} state=installed
   with_items:
+    - libselinux-python
     - ntp
     - bind-utils
-    - unzip
   tags: common-packages

@@ -5,23 +5,27 @@ Timeout 60
 KeepAlive Off
 MaxKeepAliveRequests 100
 KeepAliveTimeout 15
+
 <IfModule prefork.c>
-StartServers       8
-MinSpareServers    5
-MaxSpareServers   20
-ServerLimit      256
-MaxClients       256
-MaxRequestsPerChild  4000
+    StartServers       8
+    MinSpareServers    5
+    MaxSpareServers   20
+    ServerLimit      256
+    MaxClients       256
+    MaxRequestsPerChild  4000
 </IfModule>
+
 <IfModule worker.c>
-StartServers         4
-MaxClients         300
-MinSpareThreads     25
-MaxSpareThreads     75 
-ThreadsPerChild     25
-MaxRequestsPerChild  0
+    StartServers         4
+    MaxClients         300
+    MinSpareThreads     25
+    MaxSpareThreads     75 
+    ThreadsPerChild     25
+    MaxRequestsPerChild  0
 </IfModule>
+
 Listen 80
+
 LoadModule auth_basic_module modules/mod_auth_basic.so
 LoadModule auth_digest_module modules/mod_auth_digest.so
 LoadModule authn_file_module modules/mod_authn_file.so
@@ -40,38 +44,59 @@ LoadModule status_module modules/mod_status.so
 LoadModule dir_module modules/mod_dir.so
 LoadModule alias_module modules/mod_alias.so
 LoadModule rewrite_module modules/mod_rewrite.so
+
 User apache
 Group apache
+
 ServerName {{ansible_hostname}}
 ServerAdmin root@localhost
 UseCanonicalName Off
+
 DocumentRoot "/var/www/wordpress"
 <Directory />
     Options FollowSymLinks
     AllowOverride None
 </Directory>
+
 <Directory "/var/www/html">
     Options Indexes FollowSymLinks
     AllowOverride None
     Order allow,deny
     Allow from all
 </Directory>
+
 DirectoryIndex index.php index.html
+
 AccessFileName .htaccess
 <Files ~ "^\.ht">
     Order allow,deny
     Deny from all
     Satisfy All
 </Files>
+
 TypesConfig /etc/mime.types
 DefaultType text/plain
 HostnameLookups Off
 ErrorLog logs/error_log
 LogLevel warn
-LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
-CustomLog logs/access_log combined
+{% raw %}
+LogFormat "\
+host:%h\t\
+time:%{%Y-%m-%d %H:%M:%S}t\t\
+method:%m\t\
+uri:%U%q\t\
+protocol:%H\t\
+status:%>s\t\
+referer:%{Referer}i\t\
+user-agent:%{User-Agent}i\t\
+size:%b\t\
+vhost:%v\t\
+usec:%D" ltsv
+{% endraw %}
+CustomLog logs/access_log ltsv
 ServerSignature Off
 AddDefaultCharset UTF-8
+
 BrowserMatch "Mozilla/2" nokeepalive
 BrowserMatch "MSIE 4\.0b2;" nokeepalive downgrade-1.0 force-response-1.0
 BrowserMatch "RealPlayer 4\.0" force-response-1.0

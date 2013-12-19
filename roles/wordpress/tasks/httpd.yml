@@ -13,7 +13,7 @@
   tags: httpd
 
 - name: remove httpd welcome.conf
-  command: /bin/rm /etc/httpd/conf.d/welcome.conf removes=/etc/httpd/conf.d/welcome.conf
+  file: path=/etc/httpd/conf.d/welcome.conf state=absent
   notify:
     - restart httpd
   tags: httpd

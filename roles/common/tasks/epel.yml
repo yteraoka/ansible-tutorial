@@ -4,3 +4,7 @@
   notify:
     - import epel key
   tags: epel
+
+- name: disable epel repository
+  ini_file: dest=/etc/yum.repos.d/epel.repo section="epel" option="enabled" value="0"
+  tags: epel

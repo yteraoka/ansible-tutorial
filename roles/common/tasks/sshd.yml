@@ -2,7 +2,7 @@
 - name: configure sshd_config
   lineinfile: dest=/etc/ssh/sshd_config owner=root group=root mode=0600 backup=yes {{item}}
   with_items:
-    - regexp='^PasswordAuthentication' line='PasswordAuthentication no' insertafter='PasswordAuthentication no'
+    - regexp='^PasswordAuthentication' line='PasswordAuthentication no' insertafter='#PasswordAuthentication no'
     - regexp='^PermitRootLogin' line='PermitRootLogin no' insertafter='#PermitRootLogin'
     - regexp='^GSSAPIAuthentication' line='GSSAPIAuthentication no' insertafter='#GSSAPIAuthentication'
   notify: restart sshd
