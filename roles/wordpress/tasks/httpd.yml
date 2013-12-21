@@ -4,7 +4,7 @@
   tags: httpd
 
 - name: create document root
-  file: dest=/var/www/wordpress state=directory owner=root group=root mode=0755
+  file: dest=/var/www/wordpress state=directory owner=apache group=apache mode=0755
 
 - name: be sure httpd is configured
   template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
