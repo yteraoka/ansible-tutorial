@@ -1,49 +1,51 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <meta charset="utf-8">
+    <title>Ansible Tutorial in Japanese</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ansible Tutorial in Japanese. Setup Wordpress server and check with ServerSpec.">
+    <meta name="author" content="@yteraoka">
+
+    <link href='http://fonts.googleapis.com/css?family=Kavoon' rel='stylesheet' type='text/css'>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
-    <title>Ansible Tutorial</title>
+
+    <link href="css/docs.css" rel="stylesheet">
+    <link href="css/pygments-manni.css" rel="stylesheet">
+
     <style type="text/css">
-pre code {
-  font-family: courier new;
-  font-size: 9pt;
-}
-span.console-yellow {
-  color: #FCE94F;
-}
-span.console-green {
-  color: #8AE234;
-}
-span.console-blue {
-  color: #3465A4;
-}
-span.console-red {
-  color: #EF2929;
-}
-span.console-input {
-  font-weight: bold;
-  font-size: 10pt;
-}
-dd {
-  margin-left: 2em;
-  margin-bottom: 0.5em;
-}
-li ol {
-  margin-left: 1em;
-  margin-bottom: 0;
-}
-blockquote {
-  font-size: 10pt;
-}
+      .console-input {
+        font-weight: bold;
+      }
+      .console-ok {
+        color: limegreen;
+        font-weight: bold;
+      }
+      .console-changed {
+        color: darkorange;
+        font-weight: bold;
+      }
+      .console-error {
+        color: red;
+        font-weight: bold;
+      }
+      dd {
+        margin-bottom: 1em;
+      }
+      dd pre {
+        margin-top: 4px;
+      }
     </style>
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -54,121 +56,112 @@ blockquote {
   ga('send', 'pageview');
 
 </script>
+
   </head>
-
   <body>
-    <div id="container">
-      <div class="inner">
 
-        <header>
-          <h1>Ansible Tutorial</h1>
-          <h2>あんしぼー ちゅーとりある</h2>
-        </header>
+    <div class="container">
 
-<!--
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/yteraoka/test/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/yteraoka/test/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
-          <a href="https://github.com/yteraoka/test" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
--->
+      <!-- Main component for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <h1 style="font-family: Kavoon">Ansible Tutorial</h1>
+        <p><a href="http://www.techfesta.jp/">July Tech Festa</a> にて開催されたハンズオンの<a href="http://tily.github.io/jtf2013/">資料が公開</a>されていたことに刺激され、Chef の代わりに Ansible を使う資料を作りました。 Ansible を使って WordPress サーバーのセットアップを行い、ServerSpec でテストを行います。 まだ Ansible を試し始めたばかりで自分の勉強がてら書いています。 Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみようかと。</p>
+        <p><a class="btn btn-primary btn-lg" href="https://github.com/yteraoka/ansible-tutorial/">GitHub Repository</a>
+        <a class="btn btn-info btn-lg" href="https://github.com/yteraoka/ansible-tutorial/wiki">Ansible Tutorial Wiki</a></p>
+      </div>
 
-        <hr>
+      <div class="panel panel-default">
+        <div class="panel-heading">History</div>
+        <ul class="list-group">
+          <li class="list-group-item">2013年08月13日 一段落<br>コピペで動かないところを全体的に修正しました。今後は <del>詳細ページ</del> Wiki を充実させていきます</li>
+          <li class="list-group-item">2013年09月09日 <br>role についての追記しました</li>
+          <li class="list-group-item">2013年12月22日 リニューアル<br>Ansible 1.4 でテスト済み
+        </ul>
+      </div>
 
-        <section id="main_content">
-
-          <h3><a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>概要</h3>
-
-<p><a href="http://www.techfesta.jp/">July Tech Festa</a> にて開催されたハンズオンの<a href="http://tily.github.io/jtf2013/">資料が公開</a>されていたことに刺激され、Chef の代わりに Ansible を使う資料を作りました。
-Ansible を使って WordPress サーバーのセットアップを行います。<br>
-まだ Ansible を試し始めたばかりで自分の勉強がてら書いています。<br>
-Puppet にも Chef にも乗り遅れたので Ansible に飛び乗ってみようかと。
-</p>
-<p>
-2013年08月13日 <strong>一段落。</strong><br>
-コピペで動かないところを全体的に修正しました。<br>
-今後は <a href="ansible-in-detail.html">詳細ページ</a> を充実させていきます。<br>
-<br>
-2013年09月09日 role についての追記しました。<br>
-<br>
-<a href="https://github.com/yteraoka/ansible-tutorial/">https://github.com/yteraoka/ansible-tutorial/</a> コメントなどお待ちしております。<a href="https://twitter.com/yteraoka">@yteraoka</a><br>
-</p>
-
-
-<h3><a name="about-ansible" class="anchor" href="#about-ansible"><span class="octicon octicon-link"></span></a>Ansible とは</h3>
-<p>
-Ansible のサイト (<a href="http://www.ansibleworks.com/">AnsibleWorks | Radically simple IT orchestration</a>) には次のように書いてあります。
+      <div class="panel panel-default">
+        <div class="panel-heading">Ansible とは</div>
+        <ul class="list-group">
+          <li class="list-group-item">
+Ansible のサイト (<a href="http://www.ansibleworks.com/">AnsibleWorks | Radically simple IT orchestration</a>) には次のように書いてあります<br>
 <blockquote>
-Ansible は非常にシンプルなIT構成エンジンです。これはあなたのアプリケーションやシステムのデプロイを容易にします。スクリプトや専用のコードを書くことなくアプリケーションをデプロイし、更新することができます。エージェントをインストールすることなく、SSH を使い、自然な英語に近い感覚で自動化します。<br>
+Ansible は非常にシンプルなIT構成エンジンです。これはあなたのアプリケーションやシステムのデプロイを容易にします。スクリプトや専用のコードを書くことなくアプリケーションをデプロイし、更新することができます。エージェントをインストールすることなく、SSH を使い、自然な英語に近い感覚で自動化します。
 Ansible は最もシンプルな構成管理、自動化ツールです。
 </blockquote>
-以下のサイトも参考になります
+次のサイトも参考になります
 <ul>
   <li><a href="http://apatheia.info/blog/2013/04/06/about-ansible/">構成管理ツール Ansible について - apatheia.info</a></li>
-  <li><a href="http://tdoc.info/blog/2013/04/20/ansible.html">ansibleを使ってみる &mdash; そこはかとなく書くよん。</a></li>
-  <li><a href="https://speakerdeck.com/yeukhon/deploying-with-vagrant-and-ansible">Deploying with Vagrant and Ansible by yeukhon</a> [speakerdeck]<br>(これ、とても良いスライドです。この Tutorial の後にどうぞ..)</li>
+  <li><a href="http://tdoc.info/blog/2013/04/20/ansible.html">ansibleを使ってみる — そこはかとなく書くよん。</a></li>
+  <li><a href="https://speakerdeck.com/yeukhon/deploying-with-vagrant-and-ansible">Deploying with Vagrant and Ansible by yeukhon</a> [speakerdeck]</li>
 </ul>
-</p>
+(これ、とても良いスライドです。この Tutorial の後にどうぞ..)
+          </li>
+        </ul>
+      </div>
 
-<h3><a name="table-of-contents" class="anchor" href="#table-of-contents"><span class="octicon octicon-link"></span></a>目次</h3>
+      <div class="page-header">
+        <h1>Table of Contents</h1>
+      </div>
 
-<p>
-<ol>
-  <li><a href="#server-setup-using-vagrant">Vagrant を使ってサーバーを準備する</a></li>
-  <li><a href="#install-ansible">Ansible のインストール</a></li>
-  <li><a href="#prepare-ansible">Ansible を使うための準備</a></li>
-  <li><a href="#test-ansible">Ansible の疎通確認</a></li>
-  <li><a href="#simple-playbook">簡単な Playbook を書いて試す</a></li>
-  <li><a href="#gather-facts">対象ホストの情報を取得 (GATHERING FACTS)</a></li>
-  <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a>
-    <ol>
-      <li><a href="#best-practices-directory">各ディレクトリ、ファイルの役割・意味</a>
-      <li><a href="#list-variable">リスト型変数を使った処理</a>
-      <li><a href="#mysql">MySQL 関連</a>
-    </ol>
-  </li>
-  <li><a href="#test-with-serverspec">serverspec でテストする</a>
-    <ol>
-      <li><a href="#install-ruby">Ruby のインストール</a>
-      <li><a href="#install-serverspec">ServerSpec のインストール</a>
-      <li><a href="#execute-serverspec">ServerSpec を実行してみる</a>
-      <li><a href="#test-mysqld">mysqld のテストを作成</a>
-      <li><a href="#test-wordpress">WordPress のテストを作成</a>
-    </ol>
-  </li>
-  <li><a href="ansible-in-detail.html">もっと知る</a>
-    <ol>
-      <li><a href="#more2">2013/9/9 追記 (role について)</a></li>
-    </ol>
-  </li>
-</ol>
-</p>
+      <p>
+        <ol>
+          <li><a href="#server-setup-using-vagrant">Vagrant を使ってサーバーを準備する</a></li>
+          <li><a href="#install-ansible">Ansible のインストール</a></li>
+          <li><a href="#test-ansible">Ansible の疎通確認</a></li>
+          <li><a href="#simple-playbook">簡単な Playbook を書いて試す</a></li>
+          <li><a href="#gather-facts">対象ホストの情報を取得 (GATHERING FACTS)</a></li>
+          <li><a href="#best-practices">Best Plactices に沿った構成を真似る</a>
+            <ol>
+              <li><a href="#best-practices-directory">各ディレクトリ、ファイルの役割・意味</a>
+              <li><a href="#list-variable">リスト型変数を使った処理</a>
+              <li><a href="#mysql">MySQL 関連</a>
+            </ol>
+          </li>
+          <li><a href="#test-with-serverspec">serverspec でテストする</a>
+            <ol>
+              <li><a href="#install-ruby">Ruby のインストール</a>
+              <li><a href="#install-serverspec">ServerSpec のインストール</a>
+              <li><a href="#execute-serverspec">ServerSpec を実行してみる</a>
+              <li><a href="#test-mysqld">mysqld のテストを作成</a>
+              <li><a href="#test-wordpress">WordPress のテストを作成</a>
+            </ol>
+          </li>
+          <li><a href="#more">もっと知る</a></li>
+        </ol>
+      </p>
 
-<h3><a name="server-setup-using-vagrant" class="anchor" href="#server-setup-using-vagrant"><span class="octicon octicon-link"></span></a>1. Vagrant を使ってサーバーを準備する</h3>
-<p>
-何度でも綺麗な環境でやり直せるように VirtualBox + Vagrant を使ってこの Tutorial 用環境を構築します。
 
-<ul>
-  <li><a href="http://blog.1q77.com/2013/03/vagrant-1/">Vagrant メモ(1)</a></li>
-  <li><a href="http://blog.1q77.com/2013/03/vagrant-2/">Vagrant メモ(2)</a></li>
-</ul>
 
-あたりを参考に最新版の VirtualBox と Vagrant をインストールしてください。
-Sahara plugin なんかを使うとやり直しも簡単ですが、再構築してもそんなに時間かからないのでお好みで。
+<!-- ********************************************************************** -->
 
-<pre><code>$ <span class="console-input">mkdir ansible-tutorial</span>
+
+
+      <div class="page-header">
+        <h1><a name="server-setup-using-vagrant" class="anchor" href="#server-setup-using-vagrant"></a>1. Vagrant を使ってサーバーを準備する</h1>
+      </div>
+
+      <p>何度でも綺麗な環境でやり直せるように VirtualBox + Vagrant を使ってこの Tutorial 用環境を構築します。
+        <ul>
+          <li><a href="http://blog.1q77.com/2013/03/vagrant-1/">Vagrant メモ(1)</a></li>
+          <li><a href="http://blog.1q77.com/2013/03/vagrant-2/">Vagrant メモ(2)</a></li>
+        </ul>
+        あたりを参考に最新版の VirtualBox と Vagrant をインストールしてください。
+      </p>
+
+<div><pre><code>$ <span class="console-input">mkdir ansible-tutorial</span>
 $ <span class="console-input">cd ansible-tutorial</span>
-$ <span class="console-input">vagrant init centos6 http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box</span>
-</code></pre>
+$ <span class="console-input">vagrant init centos6 http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.5_chef-provisionerless.box</span>
+</code></pre></div>
 
-Ansible サーバーと、Ansible に制御される側の2台のサーバーを立てることにするので <code>Vagrantfile</code> を編集します。
+      <p>Ansible サーバーと、Ansible に制御される側の2台のサーバーを立てることにするので <code>Vagrantfile</code> を編集します
+      </p>
 
-<pre><code>$ <span class="console-input">vi Vagrantfile</span></code></pre>
+<div><pre><code>$ <span class="console-input">vi Vagrantfile</span></code></pre></div>
 
-<code>config.vm.box = "centos6"</code> の行を次のように書き換えます。2台じゃなくて3台でも4台でもOK
+      <p><code>config.vm.box = "centos6"</code> の行を次のように書き換えます。2台じゃなくて3台でも4台でもOK
+      </p>
 
-<pre>
-  config.vm.define :node1 do |node|
+<div><pre><code>  config.vm.define :node1 do |node|
     node.vm.box = "centos6"
     node.vm.network :forwarded_port, guest: 22, host: 2001, id: "ssh"
     node.vm.network :private_network, ip: "192.168.33.11"
@@ -179,252 +172,266 @@ Ansible サーバーと、Ansible に制御される側の2台のサーバーを
     node.vm.network :forwarded_port, guest: 22, host: 2002, id: "ssh"
     node.vm.network :forwarded_port, guest: 80, host: 8000, id: "http"
     node.vm.network :private_network, ip: "192.168.33.12"
-  end
-</pre>
+  end</code></pre></div>
 
-編集が終わったら起動させます。
-<pre><code>$ <span class="console-input">vagrant up</span></code></pre>
+      <p>編集が終わったら起動させます</p>
 
-起動後、Ansible で node1 から node2 へ ssh するため、Vagrant 用の秘密鍵をコピーする。
-<pre><code>$ <span class="console-input">vagrant ssh-config node1 &gt; ssh_config</span>
+<div><pre><code>$ <span class="console-input">vagrant up</span></code></pre></div>
+
+      <p>起動後、Ansible で node1 から node2 へ ssh するため、Vagrant 用の秘密鍵をコピーする</p>
+
+<div><pre><code>$ <span class="console-input">vagrant ssh-config node1 &gt; ssh_config</span>
 $ <span class="console-input">vagrant ssh-config node2 &gt;&gt; ssh_config</span>
-$ <span class="console-input">scp -F ssh_config ~/.vagrant.d/insecure_private_key node1:.ssh/id_rsa</span>
-</code></pre>
+$ <span class="console-input">scp -F ssh_config ~/.vagrant.d/insecure_private_key node1:.ssh/id_rsa</span></code></pre></div>
 
-<code>vagrant ssh</code> コマンドでログインできます
-<pre><code>$ <span class="console-input">vagrant ssh node1</span>
-$ <span class="console-input">vagrant ssh node2</span>
-</code></pre>
+      <p><code>vagrant ssh</code> コマンドでログインできます</p>
 
-やり直したくなったら destroy して up すれば元の状態に戻ります
-<pre><code>$ <span class="console-input">vagrant destroy node2</span>
-$ <span class="console-input">vagrant up node2</span>
-</code></pre>
-</p>
+<div><pre><code>$ <span class="console-input">vagrant ssh node1</span>
+$ <span class="console-input">vagrant ssh node2</span></code></pre></div>
 
-<h3><a name="install-ansible" class="anchor" href="#install-ansible"><span class="octicon octicon-link"></span></a>2. Ansible をインストールする</h3>
+      <p>やり直したくなったら destroy して up すれば元の状態に戻ります</p>
 
-<p>
-node1 に Ansible をインストールします。CentOS 6 なので EPEL リポジトリから yum でインストールします。
-
-<pre><code>$ <span class="console-input">sudo rpm -ivh http://ftp-srv2.kddilabs.jp/Linux/distributions/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm</span>
-$ <span class="console-input">sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6</span>
-$ <span class="console-input">sudo yum -y install ansible</span>
-</code></pre>
-
-楽ちんですね。
-
-</p>
+<div><pre><code>$ <span class="console-input">vagrant destroy node2</span>
+$ <span class="console-input">vagrant up node2</span></code></pre></div>
 
 
-<h3>
-<a name="prepare-ansible" class="anchor" href="#prepare-ansible"><span class="octicon octicon-link"></span></a>3. Ansible を使うための準備</h3>
 
-<p>
-vagrant ssh を使うと vagrant ユーザーでログインし、パスワードなしで sudo で root としてコマンドが実行可能なので、Ansible の実行も vagrant ユーザーで行う。
-</p>
+<!-- ********************************************************************** -->
 
-<h3>
-<a name="test-ansible" class="anchor" href="#test-ansible"><span class="octicon octicon-link"></span></a>4. Ansible の疎通確認</h3>
 
-<p>
-ping モジュールで疎通確認してみます
 
-<pre><code>$ <span class="console-input">ansible 192.168.33.12 -m ping</span>
-No hosts matched
-</code></pre>
+      <div class="page-header">
+        <h1><a name="install-ansible" class="anchor" href="#install-ansible"></a>2. Ansible をインストールする</h1>
+      </div>
 
-hosts にマッチしないそうです。Ansible は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>に書かれたホストにしかアクセスしません。yum でインストールした Ansible はデフォルトのインベントリファイルが <code>/etc/ansible/hosts</code> です(<code>/etc/ansible/ansible.cfg</code>で定義されています)が、コマンドラインオプションの <code>-i</code> で指定できます。カレントディレクトリに <code>hosts</code> ファイルを作成しましょう。
+      <p><a href="http://dl.fedoraproject.org/pub/epel/6/x86_64/repoview/ansible.html">EPEL</a> から yum でもインストール可能ですが、ここは pip で最新版をインストールします。CentOS 6 の Python は 2.6 なのでついでに 2.7 の最新を入れます (@tagomoris さんの xbuild を使わせてもらいます)</p>
 
-<pre><code>$ <span class="console-input">echo 192.168.33.12 > hosts</span></code></pre>
+<div><pre><code>$ <span class="console-input">sudo yum install bzip2-devel sqlite-devel</span>
+$ <span class="console-input">cd /var/tmp</span>
+$ <span class="console-input">git clone https://github.com/tagomoris/xbuild.git</span>
+$ <span class="console-input">sudo xbuild/python-install 2.7.6 /opt/python-2.7</span>
+$ <span class="console-input">sudo /opt/python-2.7/bin/pip install ansible</span>
+$ <span class="console-input">echo 'PATH=/opt/python-2.7/bin:$PATH' &gt;&gt; ~/.bashrc</span></code></pre></div>
 
-今度は <code>-i</code> で<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>を指定して ping モジュールを実行してみましょう。
 
-<pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -m ping</span>
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="test-ansible" class="anchor" href="#test-ansible"></a>3. Ansible の疎通確認</h1>
+      </div>
+
+      <p>ping モジュールで疎通確認してみます</p>
+
+<div><pre><code>$ <span class="console-input">ansible 192.168.33.12 -m ping</span>
+<span class="console-error">ERROR: Unable to find an inventory file, specify one with -i ?</span></code></pre></div>
+
+      <p>おっとエラーです。<code>-i</code> で inventory file を指定せよと言われています。Ansible は<a href="https://github.com/yteraoka/ansible-tutorial/wiki/Inventory-File">インベントリファイル</a>に書かれたホストにしかアクセスしません。デフォルトのインベントリファイルが <code>/etc/ansible/hosts</code> です(<code>ansible.cfg</code>で定義されています)が、コマンドラインオプションの <code>-i</code> で指定できます。</p>
+
+      <p>ちなみに ansible.cfg は次の順で探します
+        <ol>
+          <li>カレントディレクトリ</li>
+          <li>環境変数の ANSIBLE_CONFIG or ~/ansible.cfg</li>
+          <li>/etc/ansible/ansible.cfg</li>
+        </ol>
+      </p>
+
+      <p>ここではとりあえずカレントディレクトリに <code>hosts</code> ファイルを作成しましょう。</p>
+
+<div><pre><code>$ <span class="console-input">echo 192.168.33.12 &gt; hosts</span></code></pre></div>
+
+      <p>今度は <code>-i</code> でインベントリファイルを指定して ping モジュールを実行してみましょう</p>
+
+<div><pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -m ping</span>
+
 paramiko: The authenticity of host '192.168.33.12' can't be established. 
-The ssh-rsa key fingerprint is f03f045136b591c7fa475a49bcfdfe40. 
+The ssh-rsa key fingerprint is 80c661a0ec2d1f68d5352986ad417f2c. 
 Are you sure you want to continue connecting (yes/no)?
-yes
-<span class="console-green">192.168.33.12 | success &gt;&gt; {
+<span class="console-input">yes</span>
+<span class="console-ok">192.168.33.12 | success &gt;&gt; {
     "changed": false, 
     "ping": "pong"
-}</span></code></pre>
+}</span></code></pre></div>
 
-最近のバージョンで ssh の host key をチェックするようになりました。<br>
-<br>
-Ansible モジュールのドキュメントは <code>ansible-doc</code> コマンドで読むことができます。
-<pre><code>$ <span class="console-input">ansible-doc ping</span>
-&gt; PING
+      <p>ok ですね (たしか、バージョン 1.3 から host key をチェックするようになりました)</p>
 
-  A trivial test module, this module always returns `pong' on
-  successful contact. It does not make sense in playbooks, but it is
-  useful from `/usr/bin/ansible'
+      <p>次はリモートホストで任意のコマンドを実行してみましょう</p>
 
-Example:
+<div><pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -a 'uname -r'</span>
+<span class="console-ok">192.168.33.12 | success | rc=0 &gt;&gt;
+2.6.32-431.el6.x86_64</span></code></pre></div>
 
-ansible webservers -m ping
-</code></pre>
+      <p>ついでに yum モジュールでパッケージのインストールも試してみましょう</p>
 
-次にリモートホストで任意のコマンドを実行してます。
+<div><pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -m yum -s -a name=telnet</span>
+<span class="console-ok">192.168.33.12 | success &gt;&gt; {
+    "changed": true, 
+    "msg": "warning: rpmts_HdrFromFdno: Header V3 RSA/SHA1 Signature, key ID c105b9de: NOKEY\nImporting GPG key 0xC105B9DE:\n Userid : CentOS-6 Key (CentOS 6 Official Signing Key) &lt;centos-6-key@centos.org&gt;\n Package: centos-release-6-5.el6.centos.11.1.x86_64 (@anaconda-CentOS-201311272149.x86_64/6.5)\n From   : /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6\n", 
+    "rc": 0, 
+    "results": [
+        "Loaded plugins: fastestmirror, security\nLoading mirror speeds from cached hostfile\n * base: www.ftp.ne.jp\n * extras: www.ftp.ne.jp\n * updates: www.ftp.ne.jp\nSetting up Install Process\nResolving Dependencies\n--&lt; Running transaction check\n---&lt; Package telnet.x86_64 1:0.17-47.el6_3.1 will be installed\n--&lt; Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package         Arch            Version                    Repository     Size\n================================================================================\nInstalling:\n telnet          x86_64          1:0.17-47.el6_3.1          base           58 k\n\nTransaction Summary\n================================================================================\nInstall       1 Package(s)\n\nTotal download size: 58 k\nInstalled size: 109 k\nDownloading Packages:\nRetrieving key from file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6\nRunning rpm_check_debug\nRunning Transaction Test\nTransaction Test Succeeded\nRunning Transaction\n\r  Installing : 1:telnet-0.17-47.el6_3.1.x86_64                              1/1 \n\r  Verifying  : 1:telnet-0.17-47.el6_3.1.x86_64                              1/1 \n\nInstalled:\n  telnet.x86_64 1:0.17-47.el6_3.1                                               \n\nComplete!\n"
+    ]
+}</span></code></pre></div>
 
-<pre><code>$ <span class="console-input">ansible -i hosts 192.168.33.12 -a 'uname -r'</span>
-<span class="console-green">192.168.33.12 | success | rc=0 &gt;&gt;
-2.6.32-358.el6.x86_64</span></code></pre>
-</p>
+      <p>モジュールのドキュメントが <code>ansible-doc</code> コマンドで確認できます。これ地味に便利です。バージョン 1.4 から PAGER を使って表示されるようになりました</p>
 
-<h3>
-<a name="simple-playbook" class="anchor" href="#simple-playbook"><span class="octicon octicon-link"></span></a>5. 簡単な Playbook を書いて試す</h3>
+<div><pre><code>$ <span class="console-input">ansible-doc yum</span></code></pre></div>
 
-<p>
-今度は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>でグループを定義しておきます。
-<pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; hosts</span>
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="simple-playbook" class="anchor" href="#simple-playbook"></a>4. 簡単な Playbook を書いて試す</h1>
+      </div>
+
+      <p>それではいよいよ Playbook を書いてみましょう</p>
+      <p>今度はインベントリファイルでグループを定義しておきます</p>
+
+<div><pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; hosts</span>
 [test-servers]
 192.168.33.12
-<span class="console-input">_EOD_</span>
-</code></pre>
-次に playbook ファイル(yml)を作成します。
-<pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; simple-playbook.yml</span>
+<span class="console-input">_EOD_</span></code></pre></div>
+
+      <p>次に playbook ファイル (YAML) を作成します</p>
+
+<div><pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; simple-playbook.yml</span>
+---
 - hosts: test-servers
-  user: vagrant
   sudo: yes
   tasks:
     - name: be sure httpd is installed
-      action: yum pkg=httpd state=installed
+      yum: name=httpd state=installed
 
     - name: be sure httpd is running and enabled
       service: name=httpd state=running enabled=yes
-<span class="console-input">_EOD_</span>
-</code></pre>
+<span class="console-input">_EOD_</span></code></pre></div>
 
-この playbook の内容は
-<dl>
-  <dt><code>hosts: test</code></dt>
-  <dd>対象のホストまたはグループを指定する</dd>
-  <dt><code>user: vagrant</code></dt>
-  <dd>リモートホストへ vagrant ユーザとして ssh でログインする</dd>
-  <dt><code>sudo: yes</code></dt>
-  <dd>リモートホストで sudo を使って処理を実行する</dd>
-  <dt><code>tasks:</code></dt>
-  <dd>実行する処理をリストで定義する</dd>
-</dl>
+      <p>この playbook の内容は次の通り</p>
 
-<code>tasks</code> の内容
-<dl>
-  <dt><code>name:</code></dt>
-  <dd>処理の名称。実行時や task の一覧で表示されます</dd>
-  <dt><code>action:</code></dt>
-  <dd>これは省略可能で <code>yum:</code> とも書ける</dd>
-  <dt><code>service:</code></dt>
-  <dd>サービスの状態を制御するモジュール</dd>
-</dl>
+      <dl>
+        <dt>hosts: test-servers</dt>
+        <dd style="margin-left: 2em">対象のホストまたはグループを指定する (glob [*] も使えます)<br>
+    カンマ区切りでも、YAML のリスト指定でも大丈夫です</dd>
+        <dt>sudo: yes</dt>
+        <dd style="margin-left: 2em">リモートホストで sudo を使って実行する<br>
+デフォルトでは root としての実行ですが、別途 sudo_user を指定することで別のユーザーとして実行することも可能です</dd>
+        <dt>tasks:</dt>
+        <dd style="margin-left: 2em">実行する処理を定義します<br>
+name は必須ではありません、<code>yum</code>, <code>service</code> がモジュール名で、それに続くのが各モジュールのオプションです</dd>
+      </dl>
 
-playbook の syntax チェックを行なってみます。<code>--syntax-check</code> オプションを使います。
-<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --syntax-check</span>
-Playbook Syntax is fine
-</code></pre>
+      <p>playbook の syntax check を行なってみます。<code>--syntax-check</code> オプションを使います</p>
 
-次に task の一覧を確認してみましょう。<code>--list-tasks</code> オプションを使います。(<a href="ansible-in-detail.html#ansible-playbook">その他のオプション一覧はこちら</a>)。
-<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --list-tasks</span>
+<div><pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --syntax-check</span>
+
+playbook: simple-playbook.yml
+</code></pre></div>
+
+      <p>次に task の一覧を確認してみましょう。<code>--list-tasks</code> オプションを使います (<a href="https://github.com/yteraoka/ansible-tutorial/wiki/ansible-playbook%20%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89">その他のオプション一覧はこちら</a>)</p>
+
+<div><pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --list-tasks</span>
 
 playbook: simple-playbook.yml
 
-  play #1 (test-servers): task count=5
+  play #1 (test-servers):
     be sure httpd is installed
     be sure httpd is running and enabled
+</code></pre></div>
 
-</code></pre>
+      <p>エラーがなければこのような出力です。エラーがあると赤字で ERROR ... と表示されます</p>
 
-次は dry-run です、<code>--check</code> オプションを指定することで変更は行わないが、実際に実行するとこうなるという出力がされます。
-<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --check</span>
+      <p>次は dry-run です、<code>--check</code> オプションを指定することで変更は行わないが、実際に実行するとこうなるという出力がされます<br>(1.2 の時はエラーになってたけど改善されてますね)</p>
 
-PLAY [test-servers] *********************************************************** 
-
-GATHERING FACTS *************************************************************** 
-<span class="console-green">ok: [192.168.33.12]</span>
-
-TASK: [be sure httpd is installed] ******************************************** 
-<span class="console-yellow">changed: [192.168.33.12]</span>
-
-TASK: [be sure httpd is running and enabled] ********************************** 
-<span class="console-red">failed: [192.168.33.12] =&gt; {"failed": true}
-msg: cannot find 'service' binary or init script for service,  possible typo in service name?, aborting
-
-FATAL: all hosts have already failed -- aborting</span>
-
-PLAY RECAP ******************************************************************** 
-           to retry, use: --limit @/var/tmp/ansible/simple-playbook.retry
-
-<span class="console-red">192.168.33.12</span>              : <span class="console-green">ok=2</span>    <span class="console-yellow">changed=1</span>    unreachable=0    <span class="console-red">failed=1</span>
-
-</code></pre>
-あららら？なんか failed って出てますね。まぁ、順番に見てみましょう。一つ目のインストールする task は changed となっています。これは、まだ httpd がインストールされていないので、実際に実行するとインストールされて changed となるということを意味しています。次の自動起動と起動している状態にする task は失敗してしまっています。これはまだ httpd がインストールされていないために、<code>chkconfig httpd</code> などに失敗するからです。<br>
-<br>
-ではいよいよ実行してみましょう。
-
-<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml</span>
+<div><pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml --check</span>
 
 PLAY [test-servers] *********************************************************** 
 
 GATHERING FACTS *************************************************************** 
-<span class="console-green">ok: [192.168.33.12]</span>
+<span class="console-ok">ok: [192.168.33.12]</span>
 
 TASK: [be sure httpd is installed] ******************************************** 
-<span class="console-yellow">changed: [192.168.33.12]</span>
+<span class="console-changed">changed: [192.168.33.12]</span>
 
 TASK: [be sure httpd is running and enabled] ********************************** 
-<span class="console-yellow">changed: [192.168.33.12]</span>
+<span class="console-ok">ok: [192.168.33.12]</span>
 
 PLAY RECAP ******************************************************************** 
-<span class="console-yellow">192.168.33.12</span>              : <span class="console-green">ok=3</span>    <span class="console-yellow">changed=2</span>    unreachable=0    failed=0
-</code></pre>
-うまくいきましたね。<br>
-<br>
-node2 で確認
-<pre><code>$ <span class="console-input">sudo chkconfig --list httpd</span>
+<span class="console-changed">192.168.33.12</span>              : <span class="console-ok">ok=3</span>    <span class="console-changed">changed=1</span>    unreachable=0    failed=0</code></pre></div>
+
+      <p>ではいよいよ実行してみましょう</p>
+
+<div><pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml</span>
+
+PLAY [test-servers] *********************************************************** 
+
+GATHERING FACTS *************************************************************** 
+<span class="console-ok">ok: [192.168.33.12]</span>
+
+TASK: [be sure httpd is installed] ******************************************** 
+<span class="console-changed">changed: [192.168.33.12]</span>
+
+TASK: [be sure httpd is running and enabled] ********************************** 
+<span class="console-changed">changed: [192.168.33.12]</span>
+
+PLAY RECAP ******************************************************************** 
+<span class="console-changed">192.168.33.12</span>              : <span class="console-ok">ok=3</span>    <span class="console-changed">changed=2</span>    unreachable=0    failed=0</code></pre></div>
+
+      <p>うまくいきましたね</p>
+
+      <p>node2 で実際に設定されているか確認しましょう</p>
+
+<div><pre><code>$ <span class="console-input">sudo chkconfig --list httpd</span>
 httpd          	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 $ <span class="console-input">sudo service httpd status</span>
-httpd (pid  2424) is running...
-</code></pre>
+httpd (pid  2896) is running...</code></pre></div>
 
-冪等性があるため再度実行しても対象サーバーの状態は変わらない。
-ただし、既に package がインストールされていたり、サービスの設定がされていたりするのでコマンドの出力は変わる。(changed が ok だったり skipping だったりする)
-<br>
-<br>
-2度目の実行の出力
-<pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml</span>
+      <p>冪等性があるため再度実行しても対象サーバーの状態は変わらない。 ただし、既に package がインストールされていたり、サービスの設定がされていたりするのでコマンドの出力は変わる。(changed が ok だったり skipping だったりする) </p>
+
+      <p>2度目の実行の出力</p>
+
+<div><pre><code>$ <span class="console-input">ansible-playbook -i hosts simple-playbook.yml</span>
 
 PLAY [test-servers] *********************************************************** 
 
 GATHERING FACTS *************************************************************** 
-<span class="console-green">ok: [192.168.33.12]</span>
+<span class="console-ok">ok: [192.168.33.12]</span>
 
 TASK: [be sure httpd is installed] ******************************************** 
-<span class="console-green">ok: [192.168.33.12]</span>
+<span class="console-ok">ok: [192.168.33.12]</span>
 
 TASK: [be sure httpd is running and enabled] ********************************** 
-<span class="console-green">ok: [192.168.33.12]</span>
+<span class="console-ok">ok: [192.168.33.12]</span>
 
 PLAY RECAP ******************************************************************** 
-<span class="console-green">192.168.33.12</span>              : <span class="console-green">ok=3</span>    changed=0    unreachable=0    failed=0
-</code></pre>
-</p>
+<span class="console-ok">192.168.33.12</span>              : <span class="console-ok">ok=3</span>    changed=0    unreachable=0    failed=0</code></pre></div>
 
 
-<h3>
-<a name="gather-facts" class="anchor" href="#gather-facts"><span class="octicon octicon-link"></span></a>6. 対象ホストの情報を取得する</h3>
-<p>
-実行結果に「GATHERING FACTS」と出力されています。このような task は playbook に書いていません。これは何でしょう？結構時間かかってます(非力な virtual server だから?)。<br>
-名前のとおりですが、これは対象サーバーから情報を収集する処理です。次のようにして内容を確認すことができます。
-<pre style="height: 300px;"><code>$ <span class="console-input">ansible -m setup -i hosts 192.168.33.12</span>
-192.168.33.12 | success &gt;&gt; {
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="gather-facts" class="anchor" href="#gather-facts"></a>5. 対象ホストの情報を取得する</h1>
+      </div>
+
+      <p>実行結果に「GATHERING FACTS」と出力されています。このような task は playbook に書いていません。これは何でしょう？名前のとおりですが、これは対象サーバーから情報を収集する処理です。次のようにして内容を確認すことができます。</p>
+
+<div><pre style="height: 30em; overflow: scroll"><code>$ <span class="console-input">ansible -m setup -i hosts 192.168.33.12</span>
+<span class="console-ok">192.168.33.12 | success >> {
     "ansible_facts": {
         "ansible_all_ipv4_addresses": [
             "10.0.2.15", 
             "192.168.33.12"
         ], 
         "ansible_all_ipv6_addresses": [
-            "fe80::a00:27ff:fec9:399e", 
-            "fe80::a00:27ff:fed5:dab6"
+            "fe80::a00:27ff:fe4d:b37d", 
+            "fe80::a00:27ff:fed5:b2ee"
         ], 
         "ansible_architecture": "x86_64", 
         "ansible_bios_date": "12/01/2006", 
@@ -444,17 +451,18 @@ PLAY RECAP ********************************************************************
             "root": "/dev/mapper/VolGroup-lv_root"
         }, 
         "ansible_date_time": {
-            "date": "2013-08-08", 
-            "day": "08", 
-            "epoch": "1375968652", 
+            "date": "2013-12-16", 
+            "day": "16", 
+            "epoch": "1387201344", 
             "hour": "13", 
-            "iso8601": "2013-08-08T13:30:52Z", 
-            "iso8601_micro": "2013-08-08T13:30:52.873665Z", 
-            "minute": "30", 
-            "month": "08", 
-            "second": "52", 
-            "time": "13:30:52", 
+            "iso8601": "2013-12-16T13:42:24Z", 
+            "iso8601_micro": "2013-12-16T13:42:24.143102Z", 
+            "minute": "42", 
+            "month": "12", 
+            "second": "24", 
+            "time": "13:42:24", 
             "tz": "UTC", 
+            "tz_offset": "+0000", 
             "year": "2013"
         }, 
         "ansible_default_ipv4": {
@@ -462,7 +470,7 @@ PLAY RECAP ********************************************************************
             "alias": "eth0", 
             "gateway": "10.0.2.2", 
             "interface": "eth0", 
-            "macaddress": "08:00:27:c9:39:9e", 
+            "macaddress": "08:00:27:4d:b3:7d", 
             "mtu": 1500, 
             "netmask": "255.255.255.0", 
             "network": "10.0.2.0", 
@@ -472,7 +480,7 @@ PLAY RECAP ********************************************************************
         "ansible_devices": {
             "sda": {
                 "holders": [], 
-                "host": "SATA controller: Intel Corporation 82801HM/HEM (ICH8M/ICH8M-E) SATA Controller [AHCI mode] (rev 02)", 
+                "host": "IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)", 
                 "model": "VBOX HARDDISK", 
                 "partitions": {
                     "sda1": {
@@ -482,18 +490,18 @@ PLAY RECAP ********************************************************************
                         "start": "2048"
                     }, 
                     "sda2": {
-                        "sectors": "1047549952", 
+                        "sectors": "82860032", 
                         "sectorsize": 512, 
-                        "size": "499.51 GB", 
+                        "size": "39.51 GB", 
                         "start": "1026048"
                     }
                 }, 
                 "removable": "0", 
                 "rotational": "1", 
                 "scheduler_mode": "cfq", 
-                "sectors": "1048576000", 
+                "sectors": "83886080", 
                 "sectorsize": "512", 
-                "size": "500.00 GB", 
+                "size": "40.00 GB", 
                 "support_discard": "0", 
                 "vendor": "ATA"
             }, 
@@ -510,26 +518,32 @@ PLAY RECAP ********************************************************************
                 "size": "1024.00 MB", 
                 "support_discard": "0", 
                 "vendor": "VBOX"
-            }, 
-            "sr1": {
-                "holders": [], 
-                "host": "IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)", 
-                "model": "CD-ROM", 
-                "partitions": {}, 
-                "removable": "1", 
-                "rotational": "1", 
-                "scheduler_mode": "cfq", 
-                "sectors": "2097151", 
-                "sectorsize": "512", 
-                "size": "1024.00 MB", 
-                "support_discard": "0", 
-                "vendor": "VBOX"
             }
         }, 
         "ansible_distribution": "CentOS", 
         "ansible_distribution_release": "Final", 
-        "ansible_distribution_version": "6.4", 
+        "ansible_distribution_version": "6.5", 
         "ansible_domain": "localdomain", 
+        "ansible_env": {
+            "CVS_RSH": "ssh", 
+            "G_BROKEN_FILENAMES": "1", 
+            "HOME": "/home/vagrant", 
+            "LANG": "C", 
+            "LESSOPEN": "|/usr/bin/lesspipe.sh %s", 
+            "LOGNAME": "vagrant", 
+            "MAIL": "/var/mail/vagrant", 
+            "PATH": "/usr/local/bin:/bin:/usr/bin", 
+            "PWD": "/home/vagrant", 
+            "SELINUX_LEVEL_REQUESTED": "", 
+            "SELINUX_ROLE_REQUESTED": "", 
+            "SELINUX_USE_CURRENT_RANGE": "", 
+            "SHELL": "/bin/bash", 
+            "SHLVL": "2", 
+            "SSH_CLIENT": "192.168.33.11 58880 22", 
+            "SSH_CONNECTION": "192.168.33.11 58880 192.168.33.12 22", 
+            "USER": "vagrant", 
+            "_": "/usr/bin/python"
+        }, 
         "ansible_eth0": {
             "active": true, 
             "device": "eth0", 
@@ -538,16 +552,18 @@ PLAY RECAP ********************************************************************
                 "netmask": "255.255.255.0", 
                 "network": "10.0.2.0"
             }, 
+            "ipv4_secondaries": [], 
             "ipv6": [
                 {
-                    "address": "fe80::a00:27ff:fec9:399e", 
+                    "address": "fe80::a00:27ff:fe4d:b37d", 
                     "prefix": "64", 
                     "scope": "link"
                 }
             ], 
-            "macaddress": "08:00:27:c9:39:9e", 
+            "macaddress": "08:00:27:4d:b3:7d", 
             "module": "e1000", 
             "mtu": 1500, 
+            "promisc": false, 
             "type": "ether"
         }, 
         "ansible_eth1": {
@@ -558,16 +574,18 @@ PLAY RECAP ********************************************************************
                 "netmask": "255.255.255.0", 
                 "network": "192.168.33.0"
             }, 
+            "ipv4_secondaries": [], 
             "ipv6": [
                 {
-                    "address": "fe80::a00:27ff:fed5:dab6", 
+                    "address": "fe80::a00:27ff:fed5:b2ee", 
                     "prefix": "64", 
                     "scope": "link"
                 }
             ], 
-            "macaddress": "08:00:27:d5:da:b6", 
+            "macaddress": "08:00:27:d5:b2:ee", 
             "module": "e1000", 
             "mtu": 1500, 
+            "promisc": false, 
             "type": "ether"
         }, 
         "ansible_form_factor": "Other", 
@@ -578,7 +596,7 @@ PLAY RECAP ********************************************************************
             "eth1", 
             "eth0"
         ], 
-        "ansible_kernel": "2.6.32-358.el6.x86_64", 
+        "ansible_kernel": "2.6.32-431.el6.x86_64", 
         "ansible_lo": {
             "active": true, 
             "device": "lo", 
@@ -587,6 +605,7 @@ PLAY RECAP ********************************************************************
                 "netmask": "255.0.0.0", 
                 "network": "127.0.0.0"
             }, 
+            "ipv4_secondaries": [], 
             "ipv6": [
                 {
                     "address": "::1", 
@@ -595,10 +614,11 @@ PLAY RECAP ********************************************************************
                 }
             ], 
             "mtu": 16436, 
+            "promisc": false, 
             "type": "loopback"
         }, 
         "ansible_machine": "x86_64", 
-        "ansible_memfree_mb": 323, 
+        "ansible_memfree_mb": 169, 
         "ansible_memtotal_mb": 458, 
         "ansible_mounts": [
             {
@@ -606,23 +626,23 @@ PLAY RECAP ********************************************************************
                 "fstype": "ext4", 
                 "mount": "/", 
                 "options": "rw", 
-                "size_available": 497491697664, 
-                "size_total": 525282689024
+                "size_available": 37423112192, 
+                "size_total": 40797364224
             }, 
             {
                 "device": "/dev/sda1", 
                 "fstype": "ext4", 
                 "mount": "/boot", 
                 "options": "rw", 
-                "size_available": 448802816, 
+                "size_available": 446151680, 
                 "size_total": 507744256
             }, 
             {
                 "device": "/vagrant", 
                 "fstype": "vboxsf", 
                 "mount": "/vagrant", 
-                "options": "uid=501,gid=501,rw", 
-                "size_available": 72607436800, 
+                "options": "uid=900,gid=999,rw", 
+                "size_available": 22555742208, 
                 "size_total": 117461032960
             }
         ], 
@@ -631,299 +651,268 @@ PLAY RECAP ********************************************************************
         "ansible_processor": [
             "Intel(R) Core(TM) i3-3217U CPU @ 1.80GHz"
         ], 
-        "ansible_processor_cores": "NA", 
+        "ansible_processor_cores": 1, 
         "ansible_processor_count": 1, 
+        "ansible_processor_threads_per_core": 1, 
+        "ansible_processor_vcpus": 1, 
         "ansible_product_name": "VirtualBox", 
         "ansible_product_serial": "NA", 
         "ansible_product_uuid": "NA", 
         "ansible_product_version": "1.2", 
         "ansible_python_version": "2.6.6", 
         "ansible_selinux": false, 
-        "ansible_ssh_host_key_dsa_public": "...", 
-        "ansible_ssh_host_key_rsa_public": "...", 
-        "ansible_swapfree_mb": 2559, 
-        "ansible_swaptotal_mb": 2559, 
+        "ansible_ssh_host_key_dsa_public": "AAAAB3NzaC1kc3MAAACBAOQ2z5AKK04+mx8RJoSB8axADs5md7igiVmva7EhmibLkB35vpKVICI78y6l9jt6yq16+PFsEfOCEVXifXblfz122vu+pIeccEan52q5vn+W4xfu7svNDoKKg6VXgAezMCHWk15u9rQ2S5PY49VSut/SaVa2bYarNOpjY88hQv/NAAAAFQDjFghslSnBJfqJiRDgkVW7gR9P/QAAAIBXo7OpZh7kBgqHIbHFY2gSbtr6UUa/n5BmHBAbuJQpcv6EgeW0LJkE/6JjFgqJLMEjgd6JKdotz6p8397S7xXzwJBn/EONWR4g9NSwIgjcK4/6UALpkxcz73lSXhYXvGIMC+GYlZOTNm1ieuy1Oi/K0S4DBJhLNtlXE4Pm32gDCQAAAIB7C97Tt5DPEDl5IekSuZDfV9D33uj5BCZivINM40JxdVzG79RQyUAstiVvRWmvai02C0ff9T2VLbihHidHeaA/cTmAIXOlEda/vE/qrmmCVoalUOmEyOLDR6UXE/OKriKLtlpHzos5RJrfPc9xpme4DBdwuiXkwMyi/lY6164jfA==", 
+        "ansible_ssh_host_key_rsa_public": "AAAAB3NzaC1yc2EAAAABIwAAAQEA1MfoV6b96gaG82/Iee8abtYEpyGEuaMKovWBoIKyEiDH4A/iiICRHtyhc/IYFQixM6GQI/j1kuVC4moDUCVMXqqwI1aJcKroNexVsRnoKToLXW/NGZ90bpd7m+YVd+LomaXUAFWq64j3Eo3+hXkf4k8iSQrz06jCLcfllDuf8JuRto1wIi7GJCqxCjgEEelmhCSvwrLbuFM2FD4i34tWj7+PraPNm/kkCqooev0mKPArXSZ65WCsIuZ2VV4F0FQnU6iOqYwphEsiWPvaQZfEwzzD3Tr4RkWDPu7i4VQN++KmzsPIjYp514KMydJy7/3Msqee3xtexkv/l0lRyihpRQ==", 
+        "ansible_swapfree_mb": 927, 
+        "ansible_swaptotal_mb": 927, 
         "ansible_system": "Linux", 
         "ansible_system_vendor": "innotek GmbH", 
         "ansible_user_id": "vagrant", 
         "ansible_userspace_architecture": "x86_64", 
         "ansible_userspace_bits": "64", 
         "ansible_virtualization_role": "guest", 
-        "ansible_virtualization_type": "virtualbox", 
-        "facter_architecture": "x86_64", 
-        "facter_augeasversion": "0.9.0", 
-        "facter_blockdevice_sda_model": "VBOX HARDDISK", 
-        "facter_blockdevice_sda_size": 536870912000, 
-        "facter_blockdevice_sda_vendor": "ATA", 
-        "facter_blockdevice_sr0_model": "CD-ROM", 
-        "facter_blockdevice_sr0_size": 1073741312, 
-        "facter_blockdevice_sr0_vendor": "VBOX", 
-        "facter_blockdevice_sr1_model": "CD-ROM", 
-        "facter_blockdevice_sr1_size": 1073741312, 
-        "facter_blockdevice_sr1_vendor": "VBOX", 
-        "facter_blockdevices": "sda,sr0,sr1", 
-        "facter_facterversion": "1.7.0", 
-        "facter_filesystems": "ext4,iso9660", 
-        "facter_hardwareisa": "x86_64", 
-        "facter_hardwaremodel": "x86_64", 
-        "facter_hostname": "localhost", 
-        "facter_id": "vagrant", 
-        "facter_interfaces": "eth0,eth1,lo", 
-        "facter_ipaddress": "10.0.2.15", 
-        "facter_ipaddress_eth0": "10.0.2.15", 
-        "facter_ipaddress_eth1": "192.168.33.12", 
-        "facter_ipaddress_lo": "127.0.0.1", 
-        "facter_is_virtual": "true", 
-        "facter_kernel": "Linux", 
-        "facter_kernelmajversion": "2.6", 
-        "facter_kernelrelease": "2.6.32-358.el6.x86_64", 
-        "facter_kernelversion": "2.6.32", 
-        "facter_macaddress": "08:00:27:C9:39:9E", 
-        "facter_macaddress_eth0": "08:00:27:C9:39:9E", 
-        "facter_macaddress_eth1": "08:00:27:D5:DA:B6", 
-        "facter_memoryfree": "366.08 MB", 
-        "facter_memoryfree_mb": "366.08", 
-        "facter_memorysize": "458.64 MB", 
-        "facter_memorysize_mb": "458.64", 
-        "facter_memorytotal": "458.64 MB", 
-        "facter_mtu_eth0": "1500", 
-        "facter_mtu_eth1": "1500", 
-        "facter_mtu_lo": "16436", 
-        "facter_netmask": "255.255.255.0", 
-        "facter_netmask_eth0": "255.255.255.0", 
-        "facter_netmask_eth1": "255.255.255.0", 
-        "facter_netmask_lo": "255.0.0.0", 
-        "facter_network_eth0": "10.0.2.0", 
-        "facter_network_eth1": "192.168.33.0", 
-        "facter_network_lo": "127.0.0.0", 
-        "facter_operatingsystem": "CentOS", 
-        "facter_operatingsystemmajrelease": "6", 
-        "facter_operatingsystemrelease": "6.4", 
-        "facter_osfamily": "RedHat", 
-        "facter_path": "/usr/local/bin:/bin:/usr/bin", 
-        "facter_physicalprocessorcount": 1, 
-        "facter_processor0": "Intel(R) Core(TM) i3-3217U CPU @ 1.80GHz", 
-        "facter_processorcount": "1", 
-        "facter_ps": "ps -ef", 
-        "facter_puppetversion": "3.1.1", 
-        "facter_rubysitedir": "/usr/lib/ruby/site_ruby/1.8", 
-        "facter_rubyversion": "1.8.7", 
-        "facter_selinux": "false", 
-        "facter_sshdsakey": "...", 
-        "facter_sshfp_dsa": "SSHFP 2 1 ...\nSSHFP 2 2 ...", 
-        "facter_sshfp_rsa": "SSHFP 1 1 ...\nSSHFP 1 2 ...", 
-        "facter_sshrsakey": "...", 
-        "facter_swapfree": "2.50 GB", 
-        "facter_swapfree_mb": "2559.99", 
-        "facter_swapsize": "2.50 GB", 
-        "facter_swapsize_mb": "2559.99", 
-        "facter_timezone": "UTC", 
-        "facter_uniqueid": "007f0100", 
-        "facter_uptime": "1:09 hours", 
-        "facter_uptime_days": 0, 
-        "facter_uptime_hours": 1, 
-        "facter_uptime_seconds": 4195, 
-        "facter_virtual": "virtualbox"
+        "ansible_virtualization_type": "virtualbox"
     }, 
     "changed": false
-}
-</pre></code>
-このようにして収集したデータを task のオプションやテンプレートの変数に使うことができます。
-<ul>
-  <li>IP Address は <code>{{ansible_eth0.ipv4.address}}</code> のようにして使えます。 <code>{{ansible_eth0["ipv4"]["address"]}}</code> でもいけますね。こっちが正式？
-<pre><code>tasks:
+}</span>
+</code></pre></div>
+
+      <p>このようにして収集したデータを task のオプションやテンプレートの変数に使うことができます</p>
+
+      <p>
+      <ul>
+        <li>IP Address は <code>{{ ansible_eth0["ipv4"]["address"] }}</code> のようにして使えます。 <code>{{ ansible_eth0.ipv4.address }}</code> でもいけますね<br><br>
+<div><pre><code>tasks:
   - name: gathering data task example
-    command: echo {{ansible_eth0.ipv4.address}}
-</code></pre>
-  </li>
-  <li><code>{{ansible_processor_count * 5}}</code> と計算結果を使うこともできます。CPUのコア数を元にプロセス数を設定したりする場合に使えます。</li>
-  <li>次のようにして task 実行の条件判定にも使えます
-<pre><code>tasks:
+    command: echo {{ ansible_eth0.ipv4.address }}</code></pre></div>
+        </li>
+        <li><code>{{ ansible_processor_count * 5 }}</code> と計算結果を使うこともできます。CPU のコア数を元にプロセス数を設定したりする場合に使えます
+        </li>
+        <li>次のようにして task 実行の条件判定にも使えます<br><br>
+<div><pre><code>tasks:
   - name: "shutdown Debian flavored systems"
     command: /sbin/shutdown -t now
-    when: ansible_os_family == "Debian"
-</code></pre>
-  </li>
-</ul>
-そして、これらのデータが不要な場合は <code>gather_facts: no</code> とすることで収集しないことで playbook の実行時間を短縮できます。
-<pre><code>- hosts: all
+    when: ansible_os_family == "Debian"</code></pre></div>
+        </li>
+      </ul>
+
+      <p>そして、これらのデータが不要な場合は <code>gather_facts: no</code> とすることで収集しないことで playbook の実行時間を短縮できます
+<div><pre><code>- hosts: all
   sudo: yes
   gather_facts: no
   roles:
-    - common
-</code></pre>
-</p>
+    - common</code></pre></div>
+      </p>
 
-<h3>
-<a name="best-practices" class="anchor" href="#best-practices"><span class="octicon octicon-link"></span></a>7. Best Plactices に沿った構成を真似る</h3>
-<p>
-<a href="http://www.ansibleworks.com/docs/bestpractices.html">Best Practices</a> のディレクトリ構成にならって WordPress サーバーを構築する Playbook を作成します。
-ここは長くなりそうだから詳細は別ページにしよう。<br>
-<br>
-こんなディレクトリ構成で進めます。<a href="https://github.com/yteraoka/ansible-tutorial/tree/playbook">playbook branch</a> のファイルで一応動作すると思います。随時改善していきます。
 
-このファイルは GitHub <a href="https://github.com/yteraoka/ansible-tutorial.git">https://github.com/yteraoka/ansible-tutorial.git</a> にあります。
-<pre><code>$ <span class="console-input">git clone https://github.com/yteraoka/ansible-tutorial.git</span>
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="best-practices" class="anchor" href="#best-practices"></a>6. Best Plactices に沿った構成を真似る</h1>
+      </div>
+
+      <p><a href="http://www.ansibleworks.com/docs/bestpractices.html">Best Practices</a> のディレクトリ構成にならって WordPress サーバーを構築する Playbook を作成します。 ここは長くなりそうだから詳細は別ページにしよう
+      </p>
+
+      <p>こんなディレクトリ構成で進めます。<a href="https://github.com/yteraoka/ansible-tutorial/tree/playbook">playbook branch</a> のファイルで一応動作すると思います。随時改善していきます。 このファイルは GitHub <a href="https://github.com/yteraoka/ansible-tutorial.git">https://github.com/yteraoka/ansible-tutorial.git</a> にあります
+      </p>
+
+<div><pre><code>$ <span class="console-input">git clone https://github.com/yteraoka/ansible-tutorial.git</span>
 $ <span class="console-input">cd ansible-tutorial</span>
-$ <span class="console-input">git checkout playbook</span></code></pre>
+$ <span class="console-input">git checkout playbook</span></code></pre></div>
 
-<pre><code>$ <span class="console-input">tree</span>
+<div><pre><code>$ <span class="console-input">tree -F</span>
 .
-├── common.yml
-├── group_vars
-├── host_vars
-├── roles
-│   ├── common
-│   │   ├── files
-│   │   ├── handlers
-│   │   │   └── main.yml
-│   │   ├── tasks
-│   │   │   ├── common-packages.yml
-│   │   │   ├── epel.yml
-│   │   │   ├── main.yml
-│   │   │   ├── ntp.yml
-│   │   │   └── sshd.yml
-│   │   ├── templates
-│   │   └── vars
-│   └── wordpress
-│       ├── files
-│       │   └── wordpress-3.5.2-ja.zip
-│       ├── handlers
-│       │   └── main.yml
-│       ├── tasks
-│       │   ├── httpd.yml
-│       │   ├── main.yml
-│       │   ├── mysql.yml
-│       │   ├── php.yml
-│       │   └── wordpress.yml
-│       ├── templates
-│       │   ├── httpd.conf.j2
-│       │   └── wp-config.php.j2
-│       └── vars
-│           └── main.yml
-├── site.yml
-├── test-servers
-└── wordpress.yml
+|-- common.yml
+|-- group_vars/
+|-- host_vars/
+|-- roles/
+|   |-- common/
+|   |   |-- defaults/
+|   |   |-- files/
+|   |   |-- handlers/
+|   |   |   `-- main.yml
+|   |   |-- meta/
+|   |   |-- tasks/
+|   |   |   |-- common-packages.yml
+|   |   |   |-- epel.yml
+|   |   |   |-- main.yml
+|   |   |   |-- ntp.yml
+|   |   |   `-- sshd.yml
+|   |   |-- templates/
+|   |   `-- vars/
+|   `-- wordpress/
+|       |-- defaults/
+|       |-- files/
+|       |-- handlers/
+|       |   `-- main.yml
+|       |-- meta/
+|       |-- tasks/
+|       |   |-- httpd.yml
+|       |   |-- main.yml
+|       |   |-- mysql.yml
+|       |   |-- php.yml
+|       |   `-- wordpress.yml
+|       |-- templates/
+|       |   |-- httpd.conf.j2
+|       |   `-- wp-config.php.j2
+|       `-- vars/
+|           `-- main.yml
+|-- site.yml
+|-- test-servers
+`-- wordpress.yml
 
-15 directories, 20 files
-</code></pre>
-<code>git clone</code> した repository には空ディレクトリは入ってません。<br>
-<br>
-タスクの一覧を確認するには次のように <code>--list-tasks</code> オプションをつけて <code>ansible-playboook</code> コマンドを実行します。
-<pre><code>$ <span class="console-input">ansible-playbook --list-tasks site.yml</span>
+19 directories, 19 files
+</code></pre></div>
+
+      <p>タスクの一覧を確認するには次のように <code>--list-tasks</code> オプションをつけて <code>ansible-playboook</code> コマンドを実行します
+      </p>
+
+<div><pre><code>$ <span class="console-input">ansible-playbook --list-tasks -i test-servers site.yml</span>
 
 playbook: site.yml
 
-  play #1 (all): task count=7
+  play #1 (all):
     be sure epel repository is installed
+    disable epel repository
     be sure common packages are installed
     configure sshd_config
     be sure ntpd is running and enabled
 
-Please enter MySQL wordpress user password: 
-  play #2 (wordpress): task count=19
+Please enter MySQL wordpress user password [wordpress]: 
+  play #2 (wordpress):
     be sure httpd is installed
     create document root
     be sure httpd is configured
     remove httpd welcome.conf
     be sure httpd is running and enabled
     be sure mysql-server is installed
-    be sure mysqldb is installed
     be sure mysqld is running and enabled
     Create database
     Create database user
     be sure php is installed
-    be sure php-mysql is installed
-    disable password authentication
-    copy wordpress zip file
+    set timezone in php.ini
+    download wordpress package
     unzip wordpress zip file
+    generate secret keys
+    read secret keys
     configure wp-config.php
+</code></pre></div>
 
-</code></pre>
-MySQL ユーザーのパスワードは playbook に書かず、実行時に入力するようにしてあるため、<code>Please enter MySQL wordpress user password:</code> と、プロンプトが表示されます。ブランクで Enter を押すと playbook に書いてあるデフォルトのパスワードが使われます。<br>
-<br>
-実際の実行は次のコマンドですが
-<pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
-</code></pre>
-実行前に各ディレクトリ、ファイルの役割を確認しましょう。
-</p>
+      <p>MySQL ユーザーのパスワードは playbook に書かず、実行時に入力するようにしてあるため、<code>Please enter MySQL wordpress user password:</code> と、プロンプトが表示されます。ブランクで Enter を押すと playbook に書いてあるデフォルトのパスワードが使われます
+      </p>
 
-<h3>
-<a name="best-practices-directory" class="anchor" href="#best-practices-directory"><span class="octicon octicon-link"></span></a>7.1. 各ディレクトリ、ファイルの役割・意味</h3>
-<p>
+      <p>実際の実行は次のコマンドですが</p>
 
-数種類のサービスが Web - App - DB 構成(それぞれは Role)で構築されており、それぞれに2ヶ所のロケーションにあるとする(Multi-AZみたいな)
+<div><pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span></code></pre></div>
 
-<dl>
-  <dt>group_vars/</dt>
-  <dd>グループ毎の変数を定義するのに使います、role ではありません、role 毎の変数は roles/{role_name}/vars/ を使います。例えばロケーション毎に異なる変数など。ファイル名は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>で設定するグループ名です。インベントリファイルにグループ変数を書くことも可能です。</dd>
-  <dt>host_vars/</dt>
-  <dd>ホスト毎の変数を定義するのに使います。group_vars と同じくファイル名は<a href="ansible-in-detail.html#inventory-file">インベントリファイル</a>に設定したホスト名です。インベントリファイルの中でホスト名の右に並べて書くこともできます。</dd>
-  <dt>roles/</dt>
-  <dd>このディレクトリの下に role (役割) 毎のディレクトリを作成し、それぞれの role にさらに <code>files/</code>, <code>handlers/</code>, <code>tasks/</code>, <code>templates/</code>, <code>vars/</code> というサブディレクトリを作成します。 </dd>
-  <dt>roles/*/files/</dt>
-  <dd>当該 role の task で使うファイル関連モジュール (<a href="http://www.ansibleworks.com/docs/modules.html#file">file</a>, <a href="http://www.ansibleworks.com/docs/modules.html#copy">copy</a>) が src として使うファイルの置き場所。任意のファイル名で置きます。</dd>
-  <dt>roles/*/handlers/</dt>
-  <dd>設定変更後にサービスの再起動をさせたりする場合に、notify という定義で処理を呼び出しますが、その呼び出されるハンドラをここで定義します。main.yml というファイルで作成しますが、<code>include</code> という定義で複数ファイルをそこから読み込ませることが可能です。</dd>
-  <dt>roles/*/tasks/</dt>
-  <dd>何かをインストールしたり、ユーザーを作成したりする task 定義のファイルをここに置きます。handlers と同じように mail.yml というファイルが起点となります。</dd>
-  <dt>roles/*/templates/</dt>
-  <dd><a href="http://www.ansibleworks.com/docs/modules.html#template">template</a> モジュールで利用するテンプレートファイルを置きます。このモジュールでは <a href="http://jinja.pocoo.org/docs/">Jinja2</a> (神社) というテンプレートエンジンが使われていて <code>.j2</code> とうい拡張子を使います。</dd>
-  <dt>roles/*/vars/</dt>
-  <dd>role 毎に設定する変数を定義するファイルを置きます。handlers や tasks と同じく main.yml ファイルが起点となります。</dd>
-  <dt>sites.yml</dt>
-  <dd><code>ansible-playbook</code> コマンドに渡す大元 (root) の playbook ファイルです。</dd>
-  <dt>test-servers</dt>
-  <dd>今回のインベントリファイルです。実際の運用では development, stage, production などというそれぞれの環境毎のファイルにするのが Best Practice っぽいです。</dd>
-  <dt>wordpress.yml</dt>
-  <dd>role 毎の対象グループ、対象ホストなどを定義します。今回は wordpress サーバーをセットアップする wordpress role とするため、このファイル名としてあります。site.yml で include されています。</dd>
-</dl>
-</p>
+      <p>実行前に各ディレクトリ、ファイルの役割を確認しましょう</p>
 
-<h3>
-<a name="list-variable" class="anchor" href="#list-variable"><span class="octicon octicon-link"></span></a>7.2. リスト変数を使った処理</h3>
-<p>
-<code>roles/common/tasks/common-packages.yml</code> を見てみましょう。
-<pre><code>- name: be sure common packages are installed
-  yum: name={{item}} state=installed
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="best-practices-directory" class="anchor" href="#best-practices-directory"></a>6.1. 各ディレクトリ、ファイルの役割・意味</h1>
+      </div>
+
+      <p>数種類のサービスが Web - App - DB 構成(それぞれは Role)で構築されており、それぞれに2ヶ所のロケーションにあるとする(Multi-AZみたいな)</p>
+
+      <dl>
+        <dt>group_vars/</dt>
+        <dd style="margin-left: 2em">グループ毎の変数を定義するのに使います、role ではありません、role 毎の変数は roles/{role_name}/vars/ を使います。例えばロケーション毎に異なる変数など。ファイル名はインベントリファイルで設定するグループ名です。インベントリファイルにグループ変数を書くことも可能です</dd>
+        <dt>host_vars/</dt>
+        <dd style="margin-left: 2em">ホスト毎の変数を定義するのに使います。group_vars と同じくファイル名はインベントリファイルに設定したホスト名です。インベントリファイルの中でホスト名の右に並べて書くこともできます</dd>
+        <dt>roles/</dt>
+        <dd style="margin-left: 2em">このディレクトリの下に role (役割) 毎のディレクトリを作成し、それぞれの role にさらに <code>files/</code>, <code>handlers/</code>, <code>tasks/</code>, <code>templates/</code>, <code>vars/</code>, <code>defaults/</code>, <code>meta/</code> というサブディレクトリを作成します (その role で使うもののみ)</dd>
+        <dt>roles/*/files/</dt>
+        <dd style="margin-left: 2em">当該 role の task で使うファイル関連モジュール (<a href="http://www.ansibleworks.com/docs/modules.html#copy">copy</a>) が src として使うファイルの置き場所。任意のファイル名で置きます</dd>
+        <dt>roles/*/handlers/</dt>
+        <dd style="margin-left: 2em">設定変更後にサービスの再起動をさせたりする場合に、notify という定義で処理を呼び出しますが、その呼び出されるハンドラをここで定義します。main.yml というファイルで作成しますが、<code>include</code> という定義で複数ファイルをそこから読み込ませることが可能です</dd>
+        <dt>roles/*/tasks/</dt>
+        <dd style="margin-left: 2em">何かをインストールしたり、ユーザーを作成したりする task 定義のファイルをここに置きます。handlers と同じように main.yml というファイルが起点となります</dd>
+        <dt>roles/*/templates/</dt>
+        <dd style="margin-left: 2em"><a href="http://www.ansibleworks.com/docs/modules.html#template">template</a> モジュールで利用するテンプレートファイルを置きます。このモジュールでは <a href="http://jinja.pocoo.org/docs/">Jinja2</a> (神社) というテンプレートエンジンが使われていて .j2 とうい拡張子を使います</dd>
+        <dt>roles/*/vars/</dt>
+        <dd style="margin-left: 2em">role 毎に設定する変数を定義するファイルを置きます。handlers や tasks と同じく main.yml ファイルが起点となります</dd>
+        <dt>roles/*/defaults/</dt>
+        <dd style="margin-left: 2em">当該 role で使う変数の default 値を設定します。他で設定されていなければここで設定した値が使われます。main.yml に書きます。この変数が一番低い優先度です 「<a href="http://blog.1q77.com/2013/10/ansible-precedence-rules/">Ansible の変数の優先順</a>」</dd>
+        <dt>roles/*/meta/</dt>
+        <dd style="margin-left: 2em">role の依存設定を書きます。A という role が B という role に依存しているなら <code>roles/A/meta/main.yml</code> に次のように書きます<pre><code>---
+dependencies:
+  - role: B
+    foo: "bar"</code></pre></dd>
+        <dt>sites.yml</dt>
+        <dd style="margin-left: 2em"><code>ansible-playbook</code> コマンドに渡す大元 (root) の playbook ファイルです</dd>
+        <dt>test-servers</dt>
+        <dd style="margin-left: 2em">今回のインベントリファイルです。実際の運用では development, stage, production などというそれぞれの環境毎のファイルにするのが Best Practice っぽいです</dd>
+        <dt>wordpress.yml</dt>
+        <dd style="margin-left: 2em">role 毎の対象グループ、対象ホストなどを定義します。今回は wordpress サーバーをセットアップする wordpress role とするため、このファイル名としてあります。site.yml で include されています</dd>
+      </dl>
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="list-variable" class="anchor" href="#list-variable"></a>6.2. リスト変数を使った処理</h1>
+      </div>
+
+      <p><code>roles/common/tasks/common-packages.yml</code> を見てみましょう</p>
+
+<div><pre><code>- name: be sure common packages are installed
+  yum: name={{ item }} state=installed
   with_items:
     - ntp
     - bind-utils
     - unzip
-  tags: common-packages
-</code></pre>
-<code>with_items</code> にインストールされているべきパッケージ名を並べ、それぞれを <a href="ansible-in-detail.html#module-yum">yum モジュール</a>で処理します。
-<code>tags</code> を指定しておくと ansible-playbook の <code>--tags</code> オプションを使うことで指定の tag のついた task だけを実行可能。複数の task に同じ tag を付けられます。<br>
+  tags: common-packages</code></pre></div>
 
-<br>
+      <p><code>with_items</code> にインストールされているべきパッケージ名を並べ、それぞれを <a href="https://github.com/yteraoka/ansible-tutorial/wiki/module-yum">yum モジュール</a>で処理します。 <code>tags</code> を指定しておくと ansible-playbook の <code>--tags / -t</code> オプションを使うことで指定の tag のついた task だけを実行可能。複数の task に同じ tag を付けられます
+      </p>
 
-<code>roles/common/tasks/sshd.yml</code> でも sshd_config の複数行の編集をまとめるために <code>with_items</code> を使っています。
-<pre><code>- name: configure sshd_config
-  lineinfile: dest=/etc/ssh/sshd_config owner=root group=root mode=0600 backup=yes {{item}}
+      <p><code>roles/common/tasks/sshd.yml</code> でも sshd_config の複数行の編集をまとめるために <code>with_items</code> を使っています
+      </p>
+
+<div><pre><code>- name: configure sshd_config
+  lineinfile: dest=/etc/ssh/sshd_config owner=root group=root mode=0600 backup=yes {{ item }}
   with_items:
-    - regexp='^PasswordAuthentication' line='PasswordAuthentication no' insertafter='PasswordAuthentication no'
+    - regexp='^PasswordAuthentication' line='PasswordAuthentication no' insertafter='#PasswordAuthentication'
     - regexp='^PermitRootLogin' line='PermitRootLogin no' insertafter='#PermitRootLogin'
     - regexp='^GSSAPIAuthentication' line='GSSAPIAuthentication no' insertafter='#GSSAPIAuthentication'
   notify: restart sshd
-  tags: sshd
-</code></pre>
-それぞれ別の task にしてしまうと <code>notify</code> によて3度も sshd の restart が必要になってしまう...と思ったら、別々にしても <code>notify</code> は一度しか処理されませんでした。よって、こういう場合はわかりやすい書き方を選ぶのが良いでしょう。<br>
-<br>
-<a href="ansible-in-detail.html#module-lineinfile"><code>lineinfile</code></a> モジュールは設定ファイルの置換に便利です。<code>insertafter</code> や <code>backref</code> オプションは要<a href="ansible-in-detail.html#module-lineinfile">チェック</a>です。
-</p>
+  tags: sshd</code></pre></div>
 
-<h3>
-<a name="mysql" class="anchor" href="#mysql"><span class="octicon octicon-link"></span></a>7.3. MySQL 関連</h3>
-<p>
-パッケージのインストールだけでなく、DBの作成、ユーザーの作成も行えます。
-<pre><code># yum で mysql-server パッケージをインストール
+      <p>それぞれ別の task にしてしまうと <code>notify</code> によて3度も sshd の restart が必要になってしまう...と思ったら、別々にしても <code>notify</code> は一度しか処理されませんでした。<code>notify</code> はその role の最後に実行されるようです。よって、こういう場合はわかりやすい書き方を選ぶのが良いでしょう</p>
+
+      <p><code>lineinfile</code> モジュールは設定ファイルの置換に便利です。<code>insertafter</code> や <code>backref</code> オプションは要チェックです</p>
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="mysql" class="anchor" href="#mysql"></a>6.3. MySQL 関連</h1>
+      </div>
+
+      <p>パッケージのインストールだけでなく、DBの作成、ユーザーの作成も行えます </p> 
+
+<div><pre><code>---
+# yum で mysql-server と mysql_* モジュールで必要な MySQL-python パッケージをインストール
 - name: be sure mysql-server is installed
-  yum: pkg=mysql-server state=installed
-  tags: mysqld
-
-# mysql_user で必要な python モジュールをインストールする
-- name: be sure mysqldb is installed
-  yum: pkg=MySQL-python state=installed
+  yum: name={{ item }} state=installed
+  with_items:
+    - mysql-server
+    - MySQL-python
   tags: mysqld
 
 # mysqld の起動、自動起動設定
@@ -933,17 +922,22 @@ MySQL ユーザーのパスワードは playbook に書かず、実行時に入�
 
 # wordpress 用 DB の作成
 - name: Create database
-  action: mysql_db db={{dbname}} state=present
+  mysql_db: db={{ dbname }} state=present encoding=utf8
   tags: mysqld
 
 # wordpress 用 DB ユーザーの作成
 - name: Create database user
-  action: mysql_user name=${dbuser} password=${dbpassword} priv=${dbname}.*:ALL state=present
+  mysql_user: &gt;
+    name={{ dbuser }}
+    password="{{ dbpassword }}"
+    priv={{ dbname }}.*:ALL
+    state=present
   tags: mysqld
-</code></pre>
+</code></pre></div>
 
-<code>dbname</code>, <code>dbuser</code> 変数は <code>roles/wordpress/vars/main.yml</code> に書いてあり、<code>dbpassword</code> は <code>wordpress.yml</code> にて次のように <code>vas_prompt</code> 設定し、ansible-playbook 実行時に入力させている。
-<code><pre>- hosts: wordpress
+      <p><code>dbname</code>, <code>dbuser</code> 変数は <code>roles/wordpress/vars/main.yml</code> に書いてあり、<code>dbpassword</code> は <code>wordpress.yml</code> にて次のように <code>vars_prompt</code> 設定し、ansible-playbook 実行時に入力させています</p>
+
+<div><pre><code>- hosts: wordpress
   sudo: yes
   roles:
     - wordpress
@@ -951,54 +945,97 @@ MySQL ユーザーのパスワードは playbook に書かず、実行時に入�
     - name: "dbpassword"
       prompt: "Please enter MySQL wordpress user password"
       default: "wordpress"
-</code></pre>
-<br>
-それでは playbook を実際に実行してみましょう。
-<pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
-</code></pre>
+</code></pre></div>
 
-うまくいったでしょうか。
-</p>
+      <p>それでは playbook を実際に実行してみましょう</p>
 
-<h3>
-<a name="test-with-serverspec" class="anchor" href="#test-with-serverspec"><span class="octicon octicon-link"></span></a>8. serverspec でテストする</h3>
-<p>
-今実行した playbook がうまく動作したことを確認するために ServerSpec を利用してチェックするようにしてみましょう。
-</p>
+<div><pre><code>$ <span class="console-input">ansible-playbook -i test-servers site.yml</span>
+</code></pre></div>
 
-<h3><a name="install-ruby" class="anchor" href="#install-ruby"><span class="octicon octicon-link"></span></a>8.1. Ruby のインストール</h3>
-<p>
-ServerSpec は Ruby 製ですので、まずは Ruby のインストールですが、
-CentOS 6 はいまだに 1.8.7 と古いので最新のバージョンを ruby-build を使って /opt/ruby-2.0.0 にインストールします。<br>
-<br>
-Ruby のコンパイルに必要なものをインストール
-<pre><code>$ <span class="console-input">sudo yum -y install git gcc gcc-c++ make patch readline-devel zlib-devel libyaml-devel</span></code></pre>
+      <p>うまくいったでしょうか？</p>
 
-ruby-build を git clone する
-<pre><code>$ <span class="console-input">cd</span>
-$ <span class="console-input">git clone -q git://github.com/sstephenson/ruby-build.git</span></code></pre>
 
-2.0.0-p247 をインストール
-<pre><code>$ <span class="console-input">cd ruby-build</span>
-$ <span class="console-input">sudo bin/ruby-build 2.0.0-p247 /opt/ruby-2.0.0</span></code></pre>
-Ruby や Perl のコンパイルには結構時間がかかりますねぇ。<br>
-お茶でも飲んで待ちましょう。
-</p>
 
-<h3><a name="install-serverspec" class="anchor" href="#install-serverspec"><span class="octicon octicon-link"></span></a>8.2. ServerSpec のインストール</h3>
-<p>
-Ruby のインストールが終わったら ServerSpec を gem でインストールします。
-<pre><code>$ <span class="console-input">sudo /opt/ruby-2.0.0/bin/gem install serverspec</span></code></pre>
-あ、bundler 使ったほうが良かったかな？
-</p>
+<!-- ********************************************************************** -->
 
-<h3><a name="execute-serverspec" class="anchor" href="#execute-serverspec"><span class="octicon octicon-link"></span></a>8.3. ServerSpec を実行してみる</h3>
 
-まずは <code>serverspec-init</code> コマンドで土台を作ります。
 
-<pre><code>$ <span class="console-input">mkdir ~/serverspec</span>
+      <div class="page-header">
+        <h1><a name="test-with-serverspec" class="anchor" href="#test-with-serverspec"></a>7. serverspec でテストする</h1>
+      </div>
+
+      <p>今実行した playbook がうまく動作したことを確認するために <a href="http://serverspec.org/">ServerSpec</a> を利用してチェックするようにしてみましょう</p> 
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="install-ruby" class="anchor" href="#install-ruby"></a>7.1. Ruby のインストール</h1>
+      </div>
+
+      <p>ServerSpec は Ruby 製ですので、まずは Ruby のインストールですが、 CentOS 6 はいまだに 1.8.7 と古いので最新のバージョンを ruby-build を使って /opt/ruby-2.0.0 にインストールします</p> 
+
+      <p>Ruby のコンパイルに必要なものをインストール</p> 
+
+<div><pre><code>$ <span class="console-input">sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span>
+$ <span class="console-input">sudo yum -y install git gcc gcc-c++ make patch readline-devel zlib-devel libyaml-devel</span>
+</code></pre></div>
+
+      <p>ruby-build を git clone する</p> 
+
+<div><pre><code>$ <span class="console-input">git clone https://github.com/sstephenson/ruby-build.git</span>
+</code></pre></div>
+
+      <p>最新の Ruby (2.0.0-p353) をインストール</p> 
+
+<div><pre><code>$ <span class="console-input">cd ruby-build</span>
+$ <span class="console-input">sudo bin/ruby-build 2.0.0-p353 /opt/ruby-2.0.0</span>
+</code></pre></div>
+
+      <p>Ruby や Perl のコンパイルには結構時間がかかりますねぇ。お茶でも飲んで待ちましょう</p> 
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="install-serverspec" class="anchor" href="#install-serverspec"></a>7.2. ServerSpec のインストール</h1>
+      </div>
+
+      <p>Ruby のインストールが終わったら ServerSpec を gem でインストールします</p> 
+
+<div><pre><code>$ <span class="console-input">sudo /opt/ruby-2.0.0/bin/gem install serverspec --no-ri --no-rdoc</span>
+</code></pre></div>
+
+      <p>あ、bundler 使ったほうが良かったかな？</p> 
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="execute-serverspec" class="anchor" href="#execute-serverspec"></a>7.3. ServerSpec を実行してみる</h1>
+      </div>
+
+      <p>まずは <code>serverspec-init</code> コマンドで土台を作ります</p> 
+
+<div><pre><code>$ <span class="console-input">mkdir ~/serverspec</span>
 $ <span class="console-input">cd ~/serverspec</span>
 $ <span class="console-input">/opt/ruby-2.0.0/bin/serverspec-init</span>
+Select OS type:
+
+  1) UN*X
+  2) Windows
+
+Select number: <span class="console-input">1</span>
+
 Select a backend type:
 
   1) SSH
@@ -1013,89 +1050,119 @@ Input target host name: <span class="console-input">192.168.33.12</span>
  + spec/192.168.33.12/httpd_spec.rb
  + spec/spec_helper.rb
  + Rakefile
-</code></pre>
-Vagrant 使ってるけど、Vagrant の Guest 同士での SSH だから Vagrant じゃないよと。<br>
-今回の設定では httpd.conf の ServerName は localhost となっているのでテストをちょっといじる
-<pre><code>$ <span class="console-input">sed -i 's/192.168.33.12/localhost/' spec/192.168.33.12/httpd_spec.rb</span></code></pre>
+</code></pre></div>
 
-それでは rake コマンドでテストを実行してみましょう
+      <p>Vagrant 使ってるけど、Vagrant の Guest 同士での SSH だから Vagrant じゃないよと</p>
 
-<pre><code>$ <span class="console-input">/opt/ruby-2.0.0/bin/rake spec</span>
-/opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb
-/opt/ruby-2.0.0/bin/ruby: No such file or directory -- rspec (LoadError)
-rake aborted!
-/opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb failed
+      <p>今回の設定では httpd.conf の ServerName は localhost となっているのでテストをちょっといじる</p>
 
-Tasks: TOP =&gt; spec
-(See full trace by running task with --trace)
-</code></pre>
+<div><pre><code>$ <span class="console-input">sed -i 's/192.168.33.12/localhost/' spec/192.168.33.12/httpd_spec.rb</span>
+</code></pre></div>
 
-あらら、失敗。PATH の問題っぽい。
-<pre><code>$ <span class="console-input">PATH=/opt/ruby-2.0.0/bin:$PATH</span>
-$ <span class="console-input">/opt/ruby-2.0.0/bin/rake spec</span>
+      <p>それでは rake コマンドでテストを実行してみましょう。今回インストールした ruby のパスが PATH に入ってないので先に入れておく必要があります</p>
+
+<div><pre><code>$ <span class="console-input">PATH=/opt/ruby-2.0.0/bin:$PATH</span>
+$ <span class="console-input">rake spec</span>
 /opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb
 ......
 
-Finished in 0.62573 seconds
-6 examples, 0 failures</code></pre>
-成功しました。<br>
-<code>spec/192.168.33.12/httpd_spec.rb</code> に書いてあるテストが実行されました。<br>
+Finished in 0.99275 seconds
+6 examples, 0 failures
+</code></pre></div>
+
+      <p>成功しました</p>
+
+      <p><code>spec/192.168.33.12/httpd_spec.rb</code> に書いてあるテストが実行されました。<br>
 内容は次の通り
 <ul>
   <li>httpd パッケージがインストールされていること</li>
-  <li>httpd サービスが有効になっていること (<code>chkconfig httpd on</code> 状態)</li>
+  <li>httpd サービスが有効になっていること (chkconfig httpd on 状態)</li>
   <li>httpd が起動していること</li>
   <li>ポート 80 が LISTEN 状態となっていること</li>
   <li><code>/etc/httpd/conf/httpd.conf</code> ファイルが存在すること</li>
   <li>httpd.conf に "ServerName localhost" が含まれること</li>
 </ul>
-</p>
+      </p>
 
-<h3><a name="test-mysqld" class="anchor" href="#test-mysqld"><span class="octicon octicon-link"></span></a>8.4. mysqld のテストを作成</h3>
-<p>
-<code>httpd_spec.rb</code> を参考に mysqld のテストを作成しましょう。<br>
-これは JTF <del>のパクリですね</del> とまったく同じ課題ですね。
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="test-mysqld" class="anchor" href="#test-mysqld"></a>7.4. mysqld のテストを作成</h1>
+      </div>
+
+      <p><code>httpd_spec.rb</code> を参考に mysqld のテストを作成しましょう。
+これは JTF <del>のパクリですね</del> とまったく同じ課題です。
 <ul>
-  <li>mysql-server パッケージがインストールされていること</li> 
-  <li>mysqld デーモンが有効化されていること (chkconfig mysqld on されていること)</li> 
-  <li>mysqld デーモンが起動していること</li> 
-  <li>3306 ポートが LISTEN していること</li> 
+  <li>mysql-server パッケージがインストールされていること</li>
+  <li>mysqld デーモンが有効化されていること (chkconfig mysqld on されていること)</li>
+  <li>mysqld デーモンが起動していること</li>
+  <li>3306 ポートが LISTEN していること</li>
 </ul>
+      </p>
 
-<pre><code>$ vi spec/192.168.33.12/mysqld_spec.rb</code></pre>
+<div><pre><code>$ <span class="console-input">vi spec/192.168.33.12/mysqld_spec.rb</span></code></pre></div>
 
-(例はこちら: <a href="https://gist.github.com/yteraoka/6156753">https://gist.github.com/yteraoka/6156753</a>)<br>
-<br> 
-作成したら再度 <code>rake spec</code> コマンドを実行します。
-<pre><code>$ <span class="console-input">/opt/ruby-2.0.0/bin/rake spec</span>
+      <p>(例はこちら: <a href="https://gist.github.com/yteraoka/6156753">https://gist.github.com/yteraoka/6156753</a>)</p>
+
+      <p>作成したら再度 rake spec コマンドを実行します</p>
+
+<div><pre><code>$ <span class="console-input">rake spec</span>
 /opt/ruby-2.0.0/bin/ruby -S rspec spec/192.168.33.12/httpd_spec.rb spec/192.168.33.12/mysqld_spec.rb
 ..........
 
-Finished in 0.79427 seconds
-10 examples, 0 failures</code></pre>
-failures が 0 でない場合は 0 になるまでチャンレンジしましょう。
-</p>
-
-<h3><a name="test-wordpress" class="anchor" href="#test-wordpress"><span class="octicon octicon-link"></span></a>8.5. WordPress のテストを作成</h3>
-<p>
-Chef 版との違いが出ました。WordPress が日本語版だったので出力されるHTMLが日本語です。。。<br>
-http://localhost/wp-admin/install.php にアクセスすると出力されるメッセージ(HTML)に「<strong>5分でできる WordPress の有名なインストールプロセスへようこそ</strong>」が含まれることをチェックしましょう。<br>
-<br>
-<pre><code>$ vi spec/192.168.33.12/wordpress_spec.rb</code></pre>
-
-(例はこちら: <a href="https://gist.github.com/yteraoka/6186278">https://gist.github.com/yteraoka/6186278</a>)
-</p>
+Finished in 1.24 seconds
+10 examples, 0 failures
+</code></pre></div>
 
 
-<h3><a name="more" class="anchor" href="#more"><span class="octicon octicon-link"></span></a>9. もっと知る</h3>
-<p>
-<a href="ansible-in-detail.html">ansible-in-detail.html</a> にモジュールの説明や細かいことを書いています。
-</p>
 
-<h3><a name="more2" class="anchor" href="#more2"><span class="octicon octicon-link"></span></a>9.1. 2013/9/9 追記</h3>
-<p>
-この tutorial では <code>role</code> として <code>common</code>, <code>wordpress</code> という分け方をしましたが、その後、<a href="http://www.ansibleworks.com/ansibleworks-awx/">Ansible AWX</a> のインストーラーなどを見ると <code>nginx</code>, <code>mysql</code> などを <code>role</code> にするのが良さそうです。その上で site.yml を次のようにするのが良いようです。
-<pre><code>- hosts: all
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="test-wordpress" class="anchor" href="#test-wordpress"></a>7.5. WordPress のテストを作成</h1>
+      </div>
+
+      <p>Chef 版との違いが出ました。WordPress が日本語版だったので出力されるHTMLが日本語です。。。<br>
+http://localhost/wp-admin/install.php にアクセスすると出力されるメッセージ(HTML)に「<strong>5分でできる WordPress の有名なインストールプロセスへようこそ</strong>」が含まれることをチェックしましょう
+      </p>
+
+<div><pre><code>$ <span class="console-input">vi spec/192.168.33.12/wordpress_spec.rb</span></code></pre></div>
+
+      <p>(例はこちら: <a href="https://gist.github.com/yteraoka/6186278">https://gist.github.com/yteraoka/6186278</a>)</p>
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="more" class="anchor" href="#more"></a>8. もっと知る</h1>
+      </div>
+
+      <p><a href="https://github.com/yteraoka/ansible-tutorial/wiki/Ansible-Note">Ansible Note</a> にモジュールや細かいことを書いていきます。(Ansible in detail はなかなか更新できないので Wiki に移しました)
+      </p>
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+      <div class="page-header">
+        <h1><a name="more2" class="anchor" href="#more2"></a>8.1. 2013/9/9 追記</h1>
+      </div>
+
+      <p>この tutorial では <code>role</code> として <code>common</code>, <code>wordpress</code> という分け方をしましたが、その後、<a href="http://www.ansibleworks.com/ansibleworks-awx/">Ansible AWX</a> のインストーラーなどを見ると <code>nginx</code>, <code>mysql</code> などを <code>role</code> にするのが良さそうです。その上で site.yml を次のようにするのが良いようです</p>
+
+<div><pre><code>---
+- hosts: all
   sudo: yes
   roles:
     - { role: sshd }
@@ -1113,21 +1180,60 @@ http://localhost/wp-admin/install.php にアクセスすると出力されるメ
   roles:
     - { role: mysql, name: 'value' }
     - ...
-</code></pre>
+</code></pre></div>
 
-「role A は role B に依存しているよ」なんていう書き方もできるようです。<br>
-<a href="http://qiita.com/hnakamur/items/63f2d94badf89246e04a">Ansibleのroleを使いこなす</a> [Qiita]
+      <p>「role A は role B に依存しているよ」なんていう書き方もできるようです。
+<a href="http://qiita.com/hnakamur/items/63f2d94badf89246e04a">Ansibleのroleを使いこなす</a> [Qiita]</p>
 
-</p>
 
-        </section>
 
-        <footer>
-          Ansible Tutorial is maintained by <a href="https://github.com/yteraoka">yteraoka</a>
-        </footer>
 
-        
+<!-- ********************************************************************** -->
+
+
+
+    </div> <!-- /container -->
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+    <footer class="bs-footer" role="contentinfo">
+      <div class="container">
+        <div class="bs-social">
+          <ul class="bs-social-buttons">
+            <li>
+              <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=yteraoka&amp;repo=ansible-tutorial&amp;type=watch&amp;count=true" width="100" height="20" title="Star on GitHub"></iframe>
+            </li>
+            <li class="follow-btn">
+              <a href="https://twitter.com/yteraoka" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @yteraoka</a>
+            </li>
+            <li class="tweet-btn">
+              <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://yteraoka.github.io/ansible-tutorial/" data-count="horizontal" data-via="twbootstrap" data-related="Ansible Tutorial">Tweet</a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </footer>
+
+
+
+<!-- ********************************************************************** -->
+
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+<!-- ********************************************************************** -->
+
+
   </body>
 </html>
