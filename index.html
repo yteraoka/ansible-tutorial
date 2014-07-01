@@ -223,9 +223,11 @@ $ <span class="console-input">echo 'PATH=/opt/python-2.7/bin:$PATH' &gt;&gt; ~/.
         <h1><a name="test-ansible" class="anchor" href="#test-ansible"></a>3. Ansible の疎通確認</h1>
       </div>
 
-      <p>ping モジュールで疎通確認してみます</p>
+      <p>node1 から ping モジュールで疎通確認してみます</p>
 
-<div><pre><code>$ <span class="console-input">ansible 192.168.33.12 -m ping</span>
+<div><pre><code>$ <span class="console-input">vagrant ssh node1</span>
+
+$ <span class="console-input">ansible 192.168.33.12 -m ping</span>
 <span class="console-error">ERROR: Unable to find an inventory file, specify one with -i ?</span></code></pre></div>
 
       <p>おっとエラーです。<code>-i</code> で inventory file を指定せよと言われています。Ansible は<a href="https://github.com/yteraoka/ansible-tutorial/wiki/Inventory-File">インベントリファイル</a>に書かれたホストにしかアクセスしません。デフォルトのインベントリファイルが <code>/etc/ansible/hosts</code> です(<code>ansible.cfg</code>で定義されています)が、コマンドラインオプションの <code>-i</code> で指定できます。</p>
