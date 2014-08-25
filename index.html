@@ -884,11 +884,22 @@ dependencies:
       </p>
 
 <div><pre><code>- name: configure sshd_config
-  lineinfile: dest=/etc/ssh/sshd_config owner=root group=root mode=0600 backup=yes {{ item }}
+  lineinfile: &gt;
+    dest=/etc/ssh/sshd_config
+    owner=root group=root mode=0600 backup=yes
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+    insertafter="{{ item.insertafter }}"
   with_items:
-    - regexp='^PasswordAuthentication' line='PasswordAuthentication no' insertafter='#PasswordAuthentication'
-    - regexp='^PermitRootLogin' line='PermitRootLogin no' insertafter='#PermitRootLogin'
-    - regexp='^GSSAPIAuthentication' line='GSSAPIAuthentication no' insertafter='#GSSAPIAuthentication'
+    - regexp: '^PasswordAuthentication'
+      line: 'PasswordAuthentication no'
+      insertafter: '#PasswordAuthentication'
+    - regexp: '^PermitRootLogin'
+      line: 'PermitRootLogin no'
+      insertafter: '#PermitRootLogin'
+    - regexp: '^GSSAPIAuthentication'
+      line: 'GSSAPIAuthentication no'
+      insertafter: '#GSSAPIAuthentication'
   notify: restart sshd
   tags: sshd</code></pre></div>
 
