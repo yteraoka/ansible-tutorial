@@ -903,7 +903,7 @@ dependencies:
   notify: restart sshd
   tags: sshd</code></pre></div>
 
-      <p>それぞれ別の task にしてしまうと <code>notify</code> によて3度も sshd の restart が必要になってしまう...と思ったら、別々にしても <code>notify</code> は一度しか処理されませんでした。<code>notify</code> はその role の最後に実行されるようです。よって、こういう場合はわかりやすい書き方を選ぶのが良いでしょう</p>
+      <p>それぞれ別の task にしてしまうと <code>notify</code> によて3度も sshd の restart が必要になってしまう...と思ったら、別々にしても <code>notify</code> は一度しか処理されませんでした。<code>notify</code> はその role の最後に実行されるようです。よって、こういう場合はわかりやすい書き方を選ぶのが良いでしょう。ただし、task が増えるとその分 SSH の回数が増えます。</p>
 
       <p><code>lineinfile</code> モジュールは設定ファイルの置換に便利です。<code>insertafter</code> や <code>backref</code> オプションは要チェックです</p>
 
