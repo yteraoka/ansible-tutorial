@@ -19,5 +19,5 @@
   tags: httpd
 
 - name: be sure httpd is running and enabled
-  service: name=httpd state=running enabled=yes
+  service: name=httpd state=started enabled=yes
   tags: httpd
