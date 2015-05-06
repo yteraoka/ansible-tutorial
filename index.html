@@ -206,7 +206,7 @@ $ <span class="console-input">vagrant up node2</span></code></pre></div>
 
       <p><a href="http://dl.fedoraproject.org/pub/epel/6/x86_64/repoview/ansible.html">EPEL</a> から yum でもインストール可能ですが、ここは pip で最新版をインストールします。CentOS 6 の Python は 2.6 なのでついでに 2.7 の最新を入れます (@tagomoris さんの xbuild を使わせてもらいます)</p>
 
-<div><pre><code>$ <span class="console-input">sudo yum install bzip2-devel sqlite-devel</span>
+<div><pre><code>$ <span class="console-input">sudo yum install bzip2-devel sqlite-devel git patch gcc openssl-devel</span>
 $ <span class="console-input">cd /var/tmp</span>
 $ <span class="console-input">git clone https://github.com/tagomoris/xbuild.git</span>
 $ <span class="console-input">sudo xbuild/python-install 2.7.6 /opt/python-2.7</span>
