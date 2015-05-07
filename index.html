@@ -849,7 +849,7 @@ Please enter MySQL wordpress user password [wordpress]:
 dependencies:
   - role: B
     foo: "bar"</code></pre></dd>
-        <dt>sites.yml</dt>
+        <dt>site.yml</dt>
         <dd style="margin-left: 2em"><code>ansible-playbook</code> コマンドに渡す大元 (root) の playbook ファイルです</dd>
         <dt>test-servers</dt>
         <dd style="margin-left: 2em">今回のインベントリファイルです。実際の運用では development, stage, production などというそれぞれの環境毎のファイルにするのが Best Practice っぽいです</dd>
@@ -903,7 +903,7 @@ dependencies:
   notify: restart sshd
   tags: sshd</code></pre></div>
 
-      <p>それぞれ別の task にしてしまうと <code>notify</code> によて3度も sshd の restart が必要になってしまう...と思ったら、別々にしても <code>notify</code> は一度しか処理されませんでした。<code>notify</code> はその role の最後に実行されるようです。よって、こういう場合はわかりやすい書き方を選ぶのが良いでしょう。ただし、task が増えるとその分 SSH の回数が増えます。</p>
+      <p>それぞれ別の task にしてしまうと <code>notify</code> によって3度も sshd の restart が必要になってしまう...と思ったら、別々にしても <code>notify</code> は一度しか処理されませんでした。<code>notify</code> はその role の最後に実行されるようです。よって、こういう場合はわかりやすい書き方を選ぶのが良いでしょう。ただし、task が増えるとその分 SSH の回数が増えます。</p>
 
       <p><code>lineinfile</code> モジュールは設定ファイルの置換に便利です。<code>insertafter</code> や <code>backref</code> オプションは要チェックです</p>
 
@@ -1209,7 +1209,7 @@ http://localhost/wp-admin/install.php にアクセスすると出力されるメ
 </h1>
       </div>
 
-      <p>ここで紹介したベストプラクティス構成で多種多様なサーバーを一つにまとめ>るのは非常に困難です。共有したい role だけを外だしにするのが筆者の今のお勧めです。「<a href="http://qiita.com/yteraoka/items/5ed2bddefff32e1b9faf">Ansible オレ>オレベストプラクティス - Qiita [キータ]</a>」お試しあれ。</p>
+      <p>ここで紹介したベストプラクティス構成で多種多様なサーバーを一つにまとめるのは非常に困難です。共有したい role だけを外だしにするのが筆者の今のお勧めです。「<a href="http://qiita.com/yteraoka/items/5ed2bddefff32e1b9faf">Ansible オレ>オレベストプラクティス - Qiita [キータ]</a>」お試しあれ。</p>
 
 
 
