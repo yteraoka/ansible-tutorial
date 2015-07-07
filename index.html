@@ -181,7 +181,7 @@ $ <span class="console-input">vagrant init centos6 http://opscode-vm-bento.s3.am
       <p>起動後、Ansible で node1 から node2 へ ssh するため、Vagrant 用の秘密鍵をコピーする</p>
 
 <div><pre><code>$ <span class="console-input">vagrant ssh-config node1 &gt; ssh_config</span>
-$ <span class="console-input">scp -F ssh_config ~/.vagrant.d/insecure_private_key node1:.ssh/id_rsa</span></code></pre></div>
+$ <span class="console-input">scp -F ssh_config .vagrant/machines/node2/virtualbox/private_key node1:.ssh/id_rsa</span></code></pre></div>
 
       <p><code>vagrant ssh</code> コマンドでログインできます</p>
 
