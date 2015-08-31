@@ -1,6 +1,6 @@
 ---
 - hosts: wordpress
-  sudo: yes
+  become: yes
   roles:
     - wordpress
   vars_prompt:
