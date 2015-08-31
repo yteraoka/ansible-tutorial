@@ -309,7 +309,7 @@ Are you sure you want to continue connecting (yes/no)?
       yum: name=httpd state=installed
 
     - name: be sure httpd is running and enabled
-      service: name=httpd state=running enabled=yes
+      service: name=httpd state=started enabled=yes
 <span class="console-input">_EOD_</span></code></pre></div>
 
       <p>この playbook の内容は次の通り</p>
