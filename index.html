@@ -303,7 +303,7 @@ Are you sure you want to continue connecting (yes/no)?
 <div><pre><code>$ <span class="console-input">cat &lt;&lt;_EOD_ &gt; simple-playbook.yml</span>
 ---
 - hosts: test-servers
-  sudo: yes
+  become: yes
   tasks:
     - name: be sure httpd is installed
       yum: name=httpd state=installed
@@ -318,9 +318,9 @@ Are you sure you want to continue connecting (yes/no)?
         <dt>hosts: test-servers</dt>
         <dd style="margin-left: 2em">対象のホストまたはグループを指定する (glob [*] も使えます)<br>
     カンマ区切りでも、YAML のリスト指定でも大丈夫です</dd>
-        <dt>sudo: yes</dt>
-        <dd style="margin-left: 2em">リモートホストで sudo を使って実行する<br>
-デフォルトでは root としての実行ですが、別途 sudo_user を指定することで別のユーザーとして実行することも可能です</dd>
+        <dt>become: yes</dt>
+        <dd style="margin-left: 2em">リモートホストで sudo (default) を使って実行する<br>
+デフォルトでは root としての実行ですが、別途 become_user を指定することで別のユーザーとして実行することも可能です</dd>
         <dt>tasks:</dt>
         <dd style="margin-left: 2em">実行する処理を定義します<br>
 name は必須ではありません、<code>yum</code>, <code>service</code> がモジュール名で、それに続くのが各モジュールのオプションです</dd>
@@ -699,7 +699,7 @@ PLAY RECAP ********************************************************************
 
       <p>そして、これらのデータが不要な場合は <code>gather_facts: no</code> とすることで収集しないことで playbook の実行時間を短縮できます
 <div><pre><code>- hosts: all
-  sudo: yes
+  become: yes
   gather_facts: no
   roles:
     - common</code></pre></div>
@@ -950,7 +950,7 @@ dependencies:
       <p><code>dbname</code>, <code>dbuser</code> 変数は <code>roles/wordpress/vars/main.yml</code> に書いてあり、<code>dbpassword</code> は <code>wordpress.yml</code> にて次のように <code>vars_prompt</code> 設定し、ansible-playbook 実行時に入力させています</p>
 
 <div><pre><code>- hosts: wordpress
-  sudo: yes
+  become: yes
   roles:
     - wordpress
   vars_prompt:
@@ -1175,20 +1175,20 @@ http://localhost/wp-admin/install.php にアクセスすると出力されるメ
 
 <div><pre><code>---
 - hosts: all
-  sudo: yes
+  become: yes
   roles:
     - { role: sshd }
     - { role: ntpd }
     - { role: epel }
 
 - hosts: webservers
-  sudo: yes
+  become: yes
   roles:
     - { role: nginx, name: 'value' }
     - ...
 
 - hosts: dbservers
-  sudo: yes
+  become: yes
   roles:
     - { role: mysql, name: 'value' }
     - ...
