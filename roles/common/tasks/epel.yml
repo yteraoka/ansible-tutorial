@@ -1,8 +1,6 @@
 ---
 - name: be sure epel repository is installed
-  yum: name=http://ftp-srv2.kddilabs.jp/Linux/distributions/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
-  notify:
-    - import epel key
+  yum: name=epel-release
   tags: epel
 
 - name: disable epel repository
